@@ -14,24 +14,25 @@ func main() {
 	defer wg.Done()
 	fmt.Printf("Starting peer program\n")
 	wg.Add(1)
-	go acceptConnections()
-	wg.Wait()
+	//go acceptConnections()
+
+	addNewPeer("localhost:60000")
 
 }
 
 func acceptConnections() {
 	fmt.Println("Attempting to start listening ... ")
-	l, err := net.Listen("tcp", "localhost:60000")
+	l, err := net.Listen("tcp", "localhost:60001")
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 
-	fmt.Println("Now listening to potential peers on port 60000")
+	fmt.Println("Now listening to potential peers on port 60001")
 
 	defer l.Close()
 	for {
-		fmt.Println("Accepting connections on port 60000")
+		fmt.Println("Accepting connections on port 60001")
 		conn, errconn := l.Accept()
 		if errconn != nil {
 			fmt.Println("Error while accepting connections")
@@ -39,26 +40,23 @@ func acceptConnections() {
 		}
 
 		go handleConnection(conn)
-
 	}
 }
 
 func handleConnection(conn net.Conn) {
 	defer conn.Close()
-	fmt.Println("New connection detected")
-
-	message, _ := bufio.NewReader(conn).ReadString('\n')
-	fmt.Printf("%s\n", message)
-	if message == "hello-23\n" {
-		fmt.Println("Peer attempting connection ...")
-		bufio.NewWriter(conn).WriteString("connect-ok\n")
-		peers = append(peers, conn.RemoteAddr().String())
-		fmt.Println(peers)
-	} else {
-		fmt.Println("Message unrecognized - ignoring msg")
-		fmt.Println(peers)
+	for {
+		message, _ := bufio.NewReader(conn).ReadString('\n')
+		fmt.Printf("%s\n", message)
+		if message == "hello-23\n" {
+			fmt.Println("Peer attempting connection ...")
+			bufio.NewWriter(conn).WriteString("connect-ok\n")
+			peers = append(peers, conn.RemoteAddr().String())
+			fmt.Println(peers)
+		} else {
+			fmt.Println("Message unrecognized - ignoring msg")
+		}
 	}
-
 }
 
 func addNewPeer(add string) {
