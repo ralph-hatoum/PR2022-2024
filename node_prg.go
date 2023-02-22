@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"net"
+	"strings"
 	"sync"
 )
 
@@ -50,15 +51,26 @@ func handleConnection(conn net.Conn) {
 	message, _ := bufio.NewReader(conn).ReadString('\n')
 	fmt.Printf("%s\n", message)
 	if message == "hello-23\n" {
-		fmt.Println("Peer attempting connection ...")
-		bufio.NewWriter(conn).WriteString("connect-ok\n")
-		peers = append(peers, conn.RemoteAddr().String())
-		fmt.Println(peers)
+		// New peer joining the network
+		handleNewPeerConn(conn)
 	} else {
 		fmt.Println("Message unrecognized - ignoring msg")
 		fmt.Println(peers)
 	}
 
+}
+
+func handleNewPeerConn(conn net.Conn) {
+
+	fmt.Println("Peer attempting connection ...")
+	bufio.NewWriter(conn).WriteString("connect-ok\n")
+	remote_addr := conn.RemoteAddr().String()[:strings.IndexByte(conn.RemoteAddr().String(), ':')]
+	if !(alreadyPeer(peers, remote_addr)) {
+		peers = append(peers, remote_addr)
+	} else {
+		fmt.Println("Peer was already known")
+	}
+	fmt.Println("Peers :", peers)
 }
 
 func addNewPeer(add string) {
@@ -82,4 +94,15 @@ func addNewPeer(add string) {
 		fmt.Println(peers)
 	}
 
+}
+
+func alreadyPeer(peers []string, peer string) bool {
+	found := false
+	for _, v := range peers {
+		if v == peer {
+			found = true
+			break
+		}
+	}
+	return found
 }
