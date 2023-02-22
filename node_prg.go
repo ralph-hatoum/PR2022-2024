@@ -1,18 +1,26 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"net"
+	"sync"
 )
 
+var wg sync.WaitGroup
+
 func main() {
-	fmt.Println("Starting peer program")
+	defer wg.Done()
+	fmt.Printf("Starting peer program\n")
+	wg.Add(1)
 	go acceptConnections()
+	wg.Wait()
 
 }
 
 func acceptConnections() {
-	l, err := net.Listen("tcp", "60000")
+	fmt.Println("Attempting to start listening ... ")
+	l, err := net.Listen("tcp", "localhost:60000")
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -25,7 +33,7 @@ func acceptConnections() {
 		fmt.Println("Accepting connections on port 60000")
 		conn, errconn := l.Accept()
 		if errconn != nil {
-			fmt.Println(errconn)
+			fmt.Println("Error while accepting connections")
 			return
 		}
 
@@ -34,5 +42,14 @@ func acceptConnections() {
 }
 
 func handleConnection(conn net.Conn) {
-
+	defer conn.Close()
+	for {
+		message, _ := bufio.NewReader(conn).ReadString('\n')
+		fmt.Printf("%s\n", message)
+		if message == "hello\n" {
+			fmt.Println("Peer attempting connection ...")
+		} else {
+			fmt.Println("Message unrecognized - ignoring msg")
+		}
+	}
 }
