@@ -8,6 +8,7 @@ import (
 )
 
 var wg sync.WaitGroup
+var peers []net.Addr
 
 func main() {
 	defer wg.Done()
@@ -46,10 +47,33 @@ func handleConnection(conn net.Conn) {
 	for {
 		message, _ := bufio.NewReader(conn).ReadString('\n')
 		fmt.Printf("%s\n", message)
-		if message == "hello\n" {
+		if message == "hello-23\n" {
 			fmt.Println("Peer attempting connection ...")
+			bufio.NewWriter(conn).WriteString("connect-ok\n")
+			peers = append(peers, conn.RemoteAddr())
+			fmt.Println(peers)
 		} else {
 			fmt.Println("Message unrecognized - ignoring msg")
 		}
 	}
+}
+
+func addNewPeer(add net.Addr) {
+
+	conn, err := net.Dial("tcp", add.String())
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	bufio.NewWriter(conn).WriteString("hello23\n")
+
+	message, _ := bufio.NewReader(conn).ReadString('\n')
+
+	if message == "connect-ok\n" {
+		fmt.Println("Peer accepted connection - adding peer to peers")
+		peers = append(peers, add)
+		fmt.Println(peers)
+	}
+
 }
