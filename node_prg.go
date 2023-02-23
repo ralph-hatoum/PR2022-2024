@@ -4,12 +4,15 @@ import (
 	"bufio"
 	"fmt"
 	"net"
+	"os/exec"
 	"strings"
 	"sync"
+	"time"
 )
 
 var wg sync.WaitGroup
 var peers []string
+var files []string
 
 func main() {
 	// Main program
@@ -17,6 +20,8 @@ func main() {
 	fmt.Printf("Starting peer program\n")
 	wg.Add(1)
 	go acceptConnections()
+	wg.Add(1)
+	go watchFS()
 	wg.Wait()
 
 }
@@ -115,6 +120,7 @@ func addNewPeer(add string) {
 
 func alreadyPeer(peers []string, peer string) bool {
 	// checks if the peer is already known
+	// can also be used to check if element is in list
 	found := false
 	for _, v := range peers {
 		if v == peer {
@@ -123,4 +129,47 @@ func alreadyPeer(peers []string, peer string) bool {
 		}
 	}
 	return found
+}
+
+func watchFS() {
+
+	last_status := ""
+
+	for {
+		time.Sleep(2000000000)
+		//fmt.Println("Searching for new files ...")
+		cmd := exec.Command("ls", "./")
+		out, err := cmd.Output()
+
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+
+		//fmt.Printf("%s\n", out)
+
+		if string(out) != last_status {
+			fmt.Printf("Last status : %s\n", last_status)
+			fmt.Printf("Current status :\n%s\n", out)
+			fmt.Println("Change in FS detected ")
+			last_status = string(out)
+			go updateFiles(string(out))
+
+		}
+
+	}
+
+}
+
+func updateFiles(file_list string) {
+	to_check := strings.Split(file_list, "\n")
+
+	fmt.Println(to_check)
+	for _, element := range to_check {
+		if !alreadyPeer(files, element) {
+			files = append(files, element)
+		}
+	}
+
+	fmt.Println("Files followed : ", files)
 }
