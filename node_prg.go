@@ -3,7 +3,9 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"io"
 	"net"
+	"os"
 	"os/exec"
 	"strings"
 	"sync"
@@ -76,9 +78,13 @@ func handleConnection(conn net.Conn) {
 		// New peer joining the network
 		handleNewPeerConn(conn)
 	} else if message == "storage-request\n" {
-		receiveFile(conn)
-	} 
-	else {
+		file_name, err := bufio.NewReader(conn).ReadString('\n')
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		receiveFile(conn, file_name)
+	} else {
 		// Unrecognized message
 		fmt.Println("Message unrecognized - ignoring msg")
 		fmt.Println(peers)
@@ -219,8 +225,8 @@ func sendFilesToPeer() {
 
 func sendFileToPeer(file_name string, peer_address string) {
 
-	conn, err := net.Dial("tcp", peer_address)
-	
+	conn, err := net.Dial("tcp", peer_address+":60001")
+
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -231,7 +237,12 @@ func sendFileToPeer(file_name string, peer_address string) {
 	message.WriteString("storage-request\n")
 	message.Flush()
 
-	fi, err := os.Open(strings.TrimSpace(file_name))
+	file_name_to_send := bufio.NewWriter(conn)
+	fmt.Println("Sending file : ", file_name+"\n")
+	file_name_to_send.WriteString(file_name + "\n")
+	file_name_to_send.Flush()
+
+	fi, err := os.Open("./" + file_name)
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -247,6 +258,21 @@ func sendFileToPeer(file_name string, peer_address string) {
 	fmt.Println("File sent to ", peer_address)
 }
 
-func receiveFile(conn net.Conn) {
+func receiveFile(conn net.Conn, filename string) {
+
+	fo, err := os.Create(filename)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	defer fo.Close()
+
+	_, err = io.Copy(fo, conn)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	fmt.Println("Received file ")
 
 }
