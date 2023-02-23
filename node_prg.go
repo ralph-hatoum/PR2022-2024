@@ -14,6 +14,13 @@ var wg sync.WaitGroup
 var peers []string
 var files []string
 
+type file_at_peer struct {
+	file_name   string
+	peer_adress string
+}
+
+var files_at_peers []file_at_peer
+
 func main() {
 	// Main program
 	defer wg.Done()
@@ -22,6 +29,8 @@ func main() {
 	go acceptConnections()
 	wg.Add(1)
 	go watchFS()
+	wg.Add(1)
+	go sendFilesToPeer()
 	wg.Wait()
 
 }
@@ -66,7 +75,10 @@ func handleConnection(conn net.Conn) {
 	if message == "hello-23\n" {
 		// New peer joining the network
 		handleNewPeerConn(conn)
-	} else {
+	} else if message == "storage-request\n" {
+		receiveFile(conn)
+	} 
+	else {
 		// Unrecognized message
 		fmt.Println("Message unrecognized - ignoring msg")
 		fmt.Println(peers)
@@ -132,6 +144,7 @@ func alreadyPeer(peers []string, peer string) bool {
 }
 
 func watchFS() {
+	// to detect  new files in the FS
 
 	last_status := ""
 
@@ -152,6 +165,7 @@ func watchFS() {
 			fmt.Printf("Last status : %s\n", last_status)
 			fmt.Printf("Current status :\n%s\n", out)
 			fmt.Println("Change in FS detected ")
+			fmt.Println("\n")
 			last_status = string(out)
 			go updateFiles(string(out))
 
@@ -162,14 +176,77 @@ func watchFS() {
 }
 
 func updateFiles(file_list string) {
+	// any new files are added to the list of followed files
 	to_check := strings.Split(file_list, "\n")
 
 	fmt.Println(to_check)
 	for _, element := range to_check {
 		if !alreadyPeer(files, element) {
+			file := file_at_peer{file_name: element, peer_adress: "NO_PEER"}
 			files = append(files, element)
+			files_at_peers = append(files_at_peers, file)
 		}
 	}
 
 	fmt.Println("Files followed : ", files)
+	fmt.Println("Files at peers : ", files_at_peers)
+}
+
+func sendFilesToPeer() {
+	for {
+		time.Sleep(10000000000)
+		if len(files_at_peers) != 0 {
+			if len(peers) != 0 {
+				for index, file := range files_at_peers {
+					if file.peer_adress == "NO_PEER" {
+
+						fmt.Println("Sending file to peer ...", peers[0])
+
+						sendFileToPeer(file.file_name, peers[0])
+
+						(&files_at_peers[index]).peer_adress = peers[0]
+
+					} else {
+						fmt.Println("File already backed at peer", file.peer_adress)
+					}
+				}
+			} else {
+				fmt.Println("No peers to communicate with ! ")
+			}
+		}
+	}
+}
+
+func sendFileToPeer(file_name string, peer_address string) {
+
+	conn, err := net.Dial("tcp", peer_address)
+	
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	defer conn.Close()
+
+	message := bufio.NewWriter(conn)
+	message.WriteString("storage-request\n")
+	message.Flush()
+
+	fi, err := os.Open(strings.TrimSpace(file_name))
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	defer fi.Close()
+
+	_, err = io.Copy(conn, fi)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	fmt.Println("File sent to ", peer_address)
+}
+
+func receiveFile(conn net.Conn) {
+
 }
