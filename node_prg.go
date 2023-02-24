@@ -237,10 +237,10 @@ func sendFileToPeer(file_name string, peer_address string) {
 	message.WriteString("storage-request\n")
 	message.Flush()
 
-	file_name_to_send := bufio.NewWriter(conn)
+	//file_name_to_send := bufio.NewWriter(conn)
 	fmt.Println("Sending file : ", file_name+"\n")
-	file_name_to_send.WriteString(file_name + "\n")
-	file_name_to_send.Flush()
+	message.WriteString(file_name + "\n")
+	message.Flush()
 
 	fi, err := os.Open("./" + file_name)
 	if err != nil {
