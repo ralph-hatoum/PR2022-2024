@@ -2,8 +2,11 @@ package main
 
 import (
 	"bufio"
+	"crypto/sha256"
 	"fmt"
 	"io"
+	"io/ioutil"
+	"math/rand"
 	"net"
 	"os"
 	"os/exec"
@@ -33,6 +36,8 @@ func main() {
 	go watchFS()
 	wg.Add(1)
 	go sendFilesToPeer()
+	wg.Add(1)
+	go checkOnFiles()
 	wg.Wait()
 
 }
@@ -86,6 +91,11 @@ func handleConnection(conn net.Conn) {
 		file_name, _ := message_buffer.ReadString('\n')
 		fmt.Println(file_name)
 		receiveFile(conn, file_name)
+	} else if message[:9] == "CheckFile" {
+		fmt.Println("Checkfile request received")
+		check := strings.Split(message, "-")
+		fmt.Println(check)
+		handleCheck(check)
 	} else {
 		// Unrecognized message
 		fmt.Println("Message unrecognized - ignoring msg")
@@ -201,6 +211,7 @@ func updateFiles(file_list string) {
 }
 
 func sendFilesToPeer() {
+	// periodically checks for unbacked up files and sends them to peers
 	for {
 		time.Sleep(10000000000)
 		if len(files_at_peers) != 0 {
@@ -227,6 +238,7 @@ func sendFilesToPeer() {
 
 func sendFileToPeer(file_name string, peer_address string) {
 
+	// to send a file to a peer
 	conn, err := net.Dial("tcp", peer_address+":60001")
 
 	if err != nil {
@@ -261,7 +273,7 @@ func sendFileToPeer(file_name string, peer_address string) {
 }
 
 func receiveFile(conn net.Conn, filename string) {
-
+	// function to receive files from peers
 	fo, err := os.Create(filename)
 	if err != nil {
 		fmt.Println(err)
@@ -276,5 +288,61 @@ func receiveFile(conn net.Conn, filename string) {
 	}
 
 	fmt.Println("Received file ")
+
+}
+
+func checkOnFiles() {
+	for {
+		time.Sleep(10000000000)
+		for _, file := range files_at_peers {
+			if file.peer_adress != "NO_PEER" {
+				nonce := rand.Float64()
+				h := sha256.New()
+				file_content, err := ioutil.ReadFile(file.file_name)
+				if err != nil {
+					fmt.Println(err)
+					return
+				}
+				nonce_str := fmt.Sprintf("%f", nonce)
+				nonce_bytes := []byte(nonce_str)
+				for _, nonce_byte := range nonce_bytes {
+					file_content = append(file_content, nonce_byte)
+				}
+				h.Write(file_content)
+				expected_result := h.Sum(nil)
+				fmt.Printf("%x\n", expected_result)
+				conn, err := net.Dial("tcp", file.peer_adress+":60001")
+				if err != nil {
+					fmt.Println(err)
+					return
+				}
+				message := bufio.NewWriter(conn)
+				message.WriteString("CheckFile-" + file.file_name + "-" + string(nonce_str) + "\n")
+				message.Flush()
+
+			}
+		}
+	}
+}
+
+func handleCheck(check []string) {
+	file_name := check[1]
+	nonce := check[2]
+	h := sha256.New()
+	file_content, err := ioutil.ReadFile(file_name)
+
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	nonce_bytes := []byte(nonce)
+	for _, nonce_byte := range nonce_bytes {
+		file_content = append(file_content, nonce_byte)
+	}
+	h.Write(file_content)
+	result := h.Sum(nil)
+
+	fmt.Println(result)
 
 }
