@@ -72,17 +72,19 @@ func handleConnection(conn net.Conn) {
 	defer conn.Close()
 	fmt.Println("New connection detected")
 
-	message, _ := bufio.NewReader(conn).ReadString('\n')
+	message_buffer := bufio.NewReader(conn)
+	message, err := message_buffer.ReadString('\n')
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 	fmt.Printf("%s\n", message)
 	if message == "hello-23\n" {
 		// New peer joining the network
 		handleNewPeerConn(conn)
 	} else if message == "storage-request\n" {
-		file_name, err := bufio.NewReader(conn).ReadString('\n')
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
+		file_name, _ := message_buffer.ReadString('\n')
+		fmt.Println(file_name)
 		receiveFile(conn, file_name)
 	} else {
 		// Unrecognized message
