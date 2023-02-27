@@ -273,8 +273,8 @@ func sendFileToPeer(file_name string, peer_address string) {
 }
 
 func receiveFile(conn net.Conn, filename string) {
-	// function to receive files from peers
-	fo, err := os.Create(filename)
+	//fmt.Println(filename[:len(filename)-1])
+	fo, err := os.Create(filename[:len(filename)-1])
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -310,7 +310,7 @@ func checkOnFiles() {
 				}
 				h.Write(file_content)
 				expected_result := h.Sum(nil)
-				fmt.Printf("%x\n", expected_result)
+				fmt.Printf("Expected result for file %s : %x\n", file.file_name, expected_result)
 				conn, err := net.Dial("tcp", file.peer_adress+":60001")
 				if err != nil {
 					fmt.Println(err)
