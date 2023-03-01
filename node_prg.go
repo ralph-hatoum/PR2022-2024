@@ -16,13 +16,20 @@ import (
 )
 
 var wg sync.WaitGroup
-var peers []string
 var files []string
 
 type file_at_peer struct {
 	file_name   string
 	peer_adress string
 }
+
+type peer struct {
+	peer_address       string
+	peer_avg_resp_time int
+	peer_score         int
+}
+
+var peers []peer
 
 var files_at_peers []file_at_peer
 
@@ -111,7 +118,8 @@ func handleNewPeerConn(conn net.Conn) {
 	bufio.NewWriter(conn).WriteString("connect-ok\n")
 	remote_addr := conn.RemoteAddr().String()[:strings.IndexByte(conn.RemoteAddr().String(), ':')]
 	if !(alreadyPeer(peers, remote_addr)) {
-		peers = append(peers, remote_addr)
+		new_peer := peer{peer_address: remote_addr, peer_avg_resp_time: 0, peer_score: 0}
+		peers = append(peers, new_peer)
 	} else {
 		fmt.Println("Peer was already known")
 	}
@@ -140,7 +148,8 @@ func addNewPeer(add string) {
 		if alreadyPeer(peers, add) {
 			fmt.Println("Peer was already known")
 		} else {
-			peers = append(peers, add)
+			new_peer := peer{peer_address: add, peer_avg_resp_time: 0, peer_score: 0}
+			peers = append(peers, new_peer)
 			fmt.Println("Added peer to the network")
 		}
 		fmt.Println(peers)
@@ -148,12 +157,12 @@ func addNewPeer(add string) {
 
 }
 
-func alreadyPeer(peers []string, peer string) bool {
+func alreadyPeer(peers []peer, peer string) bool {
 	// checks if the peer is already known
 	// can also be used to check if element is in list
 	found := false
 	for _, v := range peers {
-		if v == peer {
+		if v.peer_address == peer {
 			found = true
 			break
 		}
@@ -199,7 +208,7 @@ func updateFiles(file_list string) {
 
 	fmt.Println(to_check)
 	for _, element := range to_check {
-		if !alreadyPeer(files, element) {
+		if !inList(files, element) {
 			file := file_at_peer{file_name: element, peer_adress: "NO_PEER"}
 			files = append(files, element)
 			files_at_peers = append(files_at_peers, file)
@@ -221,9 +230,9 @@ func sendFilesToPeer() {
 
 						fmt.Println("Sending file to peer ...", peers[0])
 
-						sendFileToPeer(file.file_name, peers[0])
+						sendFileToPeer(file.file_name, peers[0].peer_address)
 
-						(&files_at_peers[index]).peer_adress = peers[0]
+						(&files_at_peers[index]).peer_adress = peers[0].peer_address
 
 					}
 				}
@@ -337,14 +346,28 @@ func checkOnFiles() {
 					fmt.Printf("Node response time : %s\n", elapsed)
 					fmt.Printf("\n")
 					fmt.Printf("\n")
+					for _, peer := range peers {
+						if peer.peer_address == file.peer_adress {
+							peer.peer_avg_resp_time = peer.peer_avg_resp_time/2 + int(elapsed)
+							fmt.Println("Updated average response time for peer :")
+							fmt.Println(peer)
+						} else {
+							fmt.Println("Could not find peer")
+						}
+					}
+					fmt.Printf("\n")
+					fmt.Printf("\n")
 				} else {
 					fmt.Printf("\n")
 					fmt.Printf("\n")
 					fmt.Printf("File check on %s failed \n", file.file_name)
 					fmt.Printf("Received : %s\n", received_check)
 					fmt.Printf("Expected : %x\n", expected_result)
+					fmt.Println("Resending file")
 					fmt.Printf("\n")
 					fmt.Printf("\n")
+					fmt.Println("Resending file")
+					sendFileToPeer(file.file_name, file.peer_adress)
 
 				}
 
@@ -381,4 +404,15 @@ func handleCheck(check []string) []byte {
 
 	return result
 
+}
+
+func inList(l []string, s string) bool {
+	found := false
+	for _, v := range l {
+		if v == s {
+			found = true
+			break
+		}
+	}
+	return found
 }
