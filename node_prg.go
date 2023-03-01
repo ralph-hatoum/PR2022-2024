@@ -319,9 +319,10 @@ func checkOnFiles() {
 				message := bufio.NewWriter(conn)
 				message.WriteString("CheckFile-" + file.file_name + "-" + string(nonce_str) + "\n")
 				message.Flush()
-
+				start := time.Now()
 				received_check_buffer := bufio.NewReader(conn)
 				received_check, err := received_check_buffer.ReadString('\n')
+				elapsed := time.Since(start)
 
 				if err != nil {
 					fmt.Println(err)
@@ -330,11 +331,20 @@ func checkOnFiles() {
 				received_check = received_check[0 : len(received_check)-1]
 
 				if received_check == expected_result_string {
+					fmt.Printf("\n")
+					fmt.Printf("\n")
 					fmt.Printf("Check on %s ok !\n", file.file_name)
+					fmt.Printf("Node response time : %s\n", elapsed)
+					fmt.Printf("\n")
+					fmt.Printf("\n")
 				} else {
+					fmt.Printf("\n")
+					fmt.Printf("\n")
 					fmt.Printf("File check on %s failed \n", file.file_name)
 					fmt.Printf("Received : %s\n", received_check)
 					fmt.Printf("Expected : %x\n", expected_result)
+					fmt.Printf("\n")
+					fmt.Printf("\n")
 
 				}
 
@@ -343,7 +353,7 @@ func checkOnFiles() {
 	}
 }
 
-func handleCheck(check []string) {
+func handleCheck(check []string) []byte {
 	fmt.Println("HANDLING CHECK")
 	file_name := check[1]
 	fmt.Println("file :", file_name)
@@ -354,7 +364,7 @@ func handleCheck(check []string) {
 
 	if err != nil {
 		fmt.Println(err)
-		return
+		panic(0)
 	}
 
 	//fmt.Println(file_content)
@@ -368,5 +378,7 @@ func handleCheck(check []string) {
 	result := h.Sum(nil)
 
 	fmt.Printf("Result for file %s : %x\n", file_name, result)
+
+	return result
 
 }
