@@ -225,8 +225,6 @@ func sendFilesToPeer() {
 
 						(&files_at_peers[index]).peer_adress = peers[0]
 
-					} else {
-						fmt.Println("File already backed at peer", file.peer_adress)
 					}
 				}
 			} else {
@@ -311,7 +309,8 @@ func checkOnFiles() {
 				h.Write(file_content)
 				//fmt.Printf("Hashing buffer : %x\n", file_content)
 				expected_result := h.Sum(nil)
-				fmt.Printf("Expected result for file %s with nonce %s : %x\n", file.file_name, nonce_str, expected_result)
+				expected_result_string := fmt.Sprintf("%x", expected_result)
+				//fmt.Printf("Expected result for file %s with nonce %s : %x\n", file.file_name, nonce_str, expected_result)
 				conn, err := net.Dial("tcp", file.peer_adress+":60001")
 				if err != nil {
 					fmt.Println(err)
@@ -320,6 +319,24 @@ func checkOnFiles() {
 				message := bufio.NewWriter(conn)
 				message.WriteString("CheckFile-" + file.file_name + "-" + string(nonce_str) + "\n")
 				message.Flush()
+
+				received_check_buffer := bufio.NewReader(conn)
+				received_check, err := received_check_buffer.ReadString('\n')
+
+				if err != nil {
+					fmt.Println(err)
+					return
+				}
+				received_check = received_check[0 : len(received_check)-1]
+
+				if received_check == expected_result_string {
+					fmt.Printf("Check on %s ok !\n", file.file_name)
+				} else {
+					fmt.Printf("File check on %s failed \n", file.file_name)
+					fmt.Printf("Received : %s\n", received_check)
+					fmt.Printf("Expected : %x\n", expected_result)
+
+				}
 
 			}
 		}
