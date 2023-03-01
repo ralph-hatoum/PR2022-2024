@@ -309,8 +309,9 @@ func checkOnFiles() {
 					file_content = append(file_content, nonce_byte)
 				}
 				h.Write(file_content)
+				//fmt.Printf("Hashing buffer : %x\n", file_content)
 				expected_result := h.Sum(nil)
-				fmt.Printf("Expected result for file %s : %x\n", file.file_name, expected_result)
+				fmt.Printf("Expected result for file %s with nonce %s : %x\n", file.file_name, nonce_str, expected_result)
 				conn, err := net.Dial("tcp", file.peer_adress+":60001")
 				if err != nil {
 					fmt.Println(err)
@@ -326,8 +327,11 @@ func checkOnFiles() {
 }
 
 func handleCheck(check []string) {
+	fmt.Println("HANDLING CHECK")
 	file_name := check[1]
+	fmt.Println("file :", file_name)
 	nonce := check[2]
+	fmt.Println("nonce :", nonce)
 	h := sha256.New()
 	file_content, err := ioutil.ReadFile(file_name)
 
@@ -336,13 +340,16 @@ func handleCheck(check []string) {
 		return
 	}
 
+	//fmt.Println(file_content)
+
 	nonce_bytes := []byte(nonce)
 	for _, nonce_byte := range nonce_bytes {
 		file_content = append(file_content, nonce_byte)
 	}
-	h.Write(file_content)
+	//fmt.Printf("Hashing buffer : %x\n", file_content[0:len(file_content)-1])
+	h.Write(file_content[0 : len(file_content)-1])
 	result := h.Sum(nil)
 
-	fmt.Println(result)
+	fmt.Printf("Result for file %s : %x\n", file_name, result)
 
 }
