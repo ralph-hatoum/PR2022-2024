@@ -114,7 +114,9 @@ func handleConnection(conn net.Conn) {
 func handleNewPeerConn(conn net.Conn) {
 	// Executed when a new peer connects to us - we send him a conformation with "connect-ok"
 	// and if the peer was not already in our known peers, we add him to the known peers
+	fmt.Printf("\n")
 	fmt.Println("Peer attempting connection ...")
+	fmt.Printf("\n")
 	bufio.NewWriter(conn).WriteString("connect-ok\n")
 	remote_addr := conn.RemoteAddr().String()[:strings.IndexByte(conn.RemoteAddr().String(), ':')]
 	if !(alreadyPeer(peers, remote_addr)) {
@@ -129,7 +131,9 @@ func handleNewPeerConn(conn net.Conn) {
 func addNewPeer(add string) {
 	// This function a node to initiate a connection to another peer
 	// most likely will only be used once when the node is turned on, and only again if the node goes down and wants to come back to the network
+	fmt.Printf("\n")
 	fmt.Println("Adding new peer", add)
+	fmt.Printf("\n")
 
 	conn1, err := net.Dial("tcp", add)
 	if err != nil {
@@ -146,11 +150,15 @@ func addNewPeer(add string) {
 	if message == "connect-ok\n" {
 		fmt.Println("Peer accepted connection")
 		if alreadyPeer(peers, add) {
+			fmt.Printf("\n")
 			fmt.Println("Peer was already known")
+			fmt.Printf("\n")
 		} else {
 			new_peer := peer{peer_address: add, peer_avg_resp_time: 0, peer_score: 0}
 			peers = append(peers, new_peer)
+			fmt.Printf("\n")
 			fmt.Println("Added peer to the network")
+			fmt.Printf("\n")
 		}
 		fmt.Println(peers)
 	}
@@ -205,8 +213,9 @@ func watchFS() {
 func updateFiles(file_list string) {
 	// any new files are added to the list of followed files
 	to_check := strings.Split(file_list, "\n")
+	to_check = to_check[0 : len(to_check)-1]
 
-	fmt.Println(to_check)
+	//fmt.Println(to_check)
 	for _, element := range to_check {
 		if !inList(files, element) {
 			file := file_at_peer{file_name: element, peer_adress: "NO_PEER"}
@@ -214,15 +223,18 @@ func updateFiles(file_list string) {
 			files_at_peers = append(files_at_peers, file)
 		}
 	}
+	fmt.Printf("\n")
 
 	fmt.Println("Files followed : ", files)
+	fmt.Printf("\n")
 	fmt.Println("Files at peers : ", files_at_peers)
+	fmt.Printf("\n")
 }
 
 func sendFilesToPeer() {
 	// periodically checks for unbacked up files and sends them to peers
 	for {
-		time.Sleep(10000000000)
+		time.Sleep(1000000)
 		if len(files_at_peers) != 0 {
 			if len(peers) != 0 {
 				for index, file := range files_at_peers {
