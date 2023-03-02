@@ -52,7 +52,7 @@ func main() {
 func acceptConnections() {
 	// Node is constantly listening to its peers - this function sets up a tcp server and accepts connections
 	fmt.Println("Attempting to start listening ... ")
-	l, err := net.Listen("tcp", "localhost:60000")
+	l, err := net.Listen("tcp", "127.0.0.1:60000")
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -69,7 +69,7 @@ func acceptConnections() {
 			return
 		}
 
-		go handleConnection(conn)
+		handleConnection(conn)
 
 	}
 }
@@ -95,14 +95,29 @@ func handleConnection(conn net.Conn) {
 		// New peer joining the network
 		handleNewPeerConn(conn)
 	} else if message == "storage-request\n" {
-		file_name, _ := message_buffer.ReadString('\n')
-		fmt.Println(file_name)
-		receiveFile(conn, file_name)
+
+		if alreadyPeer(peers, conn.RemoteAddr().String()[:strings.IndexByte(conn.RemoteAddr().String(), ':')]) {
+
+			file_name, _ := message_buffer.ReadString('\n')
+			fmt.Println(file_name)
+			receiveFile(conn, file_name, conn.RemoteAddr().String())
+
+		} else {
+			fmt.Println("Unknown peer trying to send files - refused")
+			fmt.Println("Unknown peer address :", conn.RemoteAddr().String()[:strings.IndexByte(conn.RemoteAddr().String(), ':')])
+		}
 	} else if message[:9] == "CheckFile" {
 		fmt.Println("Checkfile request received")
 		check := strings.Split(message, "-")
 		fmt.Println(check)
-		handleCheck(check)
+		result := handleCheck(check, conn.RemoteAddr().String()[:strings.IndexByte(conn.RemoteAddr().String(), ':')])
+		// HERE CONVERT IT TO STRING
+		string_result := fmt.Sprintf("%x", result)
+		result_buffer := bufio.NewWriter(conn)
+		result_buffer.WriteString(string_result + "\n")
+		result_buffer.Flush()
+
+		fmt.Println("Sent check")
 	} else {
 		// Unrecognized message
 		fmt.Println("Message unrecognized - ignoring msg")
@@ -117,7 +132,9 @@ func handleNewPeerConn(conn net.Conn) {
 	fmt.Printf("\n")
 	fmt.Println("Peer attempting connection ...")
 	fmt.Printf("\n")
-	bufio.NewWriter(conn).WriteString("connect-ok\n")
+	to_send := bufio.NewWriter(conn)
+	to_send.WriteString("connect-ok\n")
+	to_send.Flush()
 	remote_addr := conn.RemoteAddr().String()[:strings.IndexByte(conn.RemoteAddr().String(), ':')]
 	if !(alreadyPeer(peers, remote_addr)) {
 		new_peer := peer{peer_address: remote_addr, peer_avg_resp_time: 0, peer_score: 0}
@@ -149,7 +166,7 @@ func addNewPeer(add string) {
 
 	if message == "connect-ok\n" {
 		fmt.Println("Peer accepted connection")
-		if alreadyPeer(peers, add) {
+		if alreadyPeer(peers, add[:strings.IndexByte(add, ':')]) {
 			fmt.Printf("\n")
 			fmt.Println("Peer was already known")
 			fmt.Printf("\n")
@@ -159,8 +176,17 @@ func addNewPeer(add string) {
 			fmt.Printf("\n")
 			fmt.Println("Added peer to the network")
 			fmt.Printf("\n")
+			err = os.Mkdir(add[:strings.IndexByte(add, ':')], os.ModePerm)
+			if err != nil {
+				fmt.Println(err)
+				fmt.Println("Could not make directory for peer and will not be able to store its files")
+				return
+			}
+			fmt.Println("Successfully built a directory for peer and files will be stored there")
 		}
 		fmt.Println(peers)
+	} else {
+		fmt.Println("No response from ", add)
 	}
 
 }
@@ -170,7 +196,7 @@ func alreadyPeer(peers []peer, peer string) bool {
 	// can also be used to check if element is in list
 	found := false
 	for _, v := range peers {
-		if v.peer_address == peer {
+		if v.peer_address == peer || v.peer_address == "localhost" && peer == "127.0.0.1" || peer == "localhost" && v.peer_address == "127.0.0.1" {
 			found = true
 			break
 		}
@@ -291,9 +317,9 @@ func sendFileToPeer(file_name string, peer_address string) {
 	fmt.Println("File sent to ", peer_address)
 }
 
-func receiveFile(conn net.Conn, filename string) {
+func receiveFile(conn net.Conn, filename string, peer string) {
 	//fmt.Println(filename[:len(filename)-1])
-	fo, err := os.Create(filename[:len(filename)-1])
+	fo, err := os.Create("./" + peer + "/" + filename[:len(filename)-1])
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -313,6 +339,7 @@ func receiveFile(conn net.Conn, filename string) {
 func checkOnFiles() {
 	for {
 		time.Sleep(10000000000)
+		fmt.Println("Peers : ", peers)
 		for _, file := range files_at_peers {
 			if file.peer_adress != "NO_PEER" {
 				nonce := rand.Float64()
@@ -388,14 +415,14 @@ func checkOnFiles() {
 	}
 }
 
-func handleCheck(check []string) []byte {
+func handleCheck(check []string, peer string) []byte {
 	fmt.Println("HANDLING CHECK")
 	file_name := check[1]
 	fmt.Println("file :", file_name)
 	nonce := check[2]
 	fmt.Println("nonce :", nonce)
 	h := sha256.New()
-	file_content, err := ioutil.ReadFile(file_name)
+	file_content, err := ioutil.ReadFile("./" + peer + "/" + file_name)
 
 	if err != nil {
 		fmt.Println(err)
