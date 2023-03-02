@@ -171,7 +171,7 @@ func addNewPeer(add string) {
 			fmt.Println("Peer was already known")
 			fmt.Printf("\n")
 		} else {
-			new_peer := peer{peer_address: add, peer_avg_resp_time: 0, peer_score: 0}
+			new_peer := peer{peer_address: add[:strings.IndexByte(add, ':')], peer_avg_resp_time: 0, peer_score: 0}
 			peers = append(peers, new_peer)
 			fmt.Printf("\n")
 			fmt.Println("Added peer to the network")
@@ -212,7 +212,7 @@ func watchFS() {
 	for {
 		time.Sleep(2000000000)
 		//fmt.Println("Searching for new files ...")
-		cmd := exec.Command("ls", "./")
+		cmd := exec.Command("ls", "./to_share")
 		out, err := cmd.Output()
 
 		if err != nil {
@@ -301,7 +301,7 @@ func sendFileToPeer(file_name string, peer_address string) {
 	message.WriteString(file_name + "\n")
 	message.Flush()
 
-	fi, err := os.Open("./" + file_name)
+	fi, err := os.Open("./to_share/" + file_name)
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -319,7 +319,7 @@ func sendFileToPeer(file_name string, peer_address string) {
 
 func receiveFile(conn net.Conn, filename string, peer string) {
 	//fmt.Println(filename[:len(filename)-1])
-	fo, err := os.Create("./" + peer + "/" + filename[:len(filename)-1])
+	fo, err := os.Create("./" + peer[:strings.IndexByte(peer, ':')] + "/" + filename[:len(filename)-1])
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -344,7 +344,7 @@ func checkOnFiles() {
 			if file.peer_adress != "NO_PEER" {
 				nonce := rand.Float64()
 				h := sha256.New()
-				file_content, err := ioutil.ReadFile(file.file_name)
+				file_content, err := ioutil.ReadFile("./to_share/" + file.file_name)
 				if err != nil {
 					fmt.Println(err)
 					return
@@ -416,7 +416,7 @@ func checkOnFiles() {
 }
 
 func handleCheck(check []string, peer string) []byte {
-	fmt.Println("HANDLING CHECK")
+	fmt.Println("HANDLING CHECK for peer ", peer)
 	file_name := check[1]
 	fmt.Println("file :", file_name)
 	nonce := check[2]
@@ -426,7 +426,8 @@ func handleCheck(check []string, peer string) []byte {
 
 	if err != nil {
 		fmt.Println(err)
-		panic(0)
+		fmt.Println("File could not be found")
+		// TODO HANDLE FILE LOSS SIGNAL
 	}
 
 	//fmt.Println(file_content)
