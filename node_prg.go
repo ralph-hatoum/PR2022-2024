@@ -15,6 +15,9 @@ import (
 	"time"
 )
 
+const port = "60000"
+const port_to_contact = "60001"
+
 var wg sync.WaitGroup
 var files []string
 
@@ -26,7 +29,7 @@ type file_at_peer struct {
 type peer struct {
 	peer_address       string
 	peer_avg_resp_time int
-	peer_score         int
+	peer_score         float64
 	files              []string
 }
 
@@ -46,6 +49,8 @@ func main() {
 	go sendFilesToPeer()
 	wg.Add(1)
 	go checkOnFiles()
+	wg.Add(1)
+	go addNewPeer("127.0.0.1:" + port_to_contact)
 	wg.Wait()
 
 }
@@ -53,17 +58,17 @@ func main() {
 func acceptConnections() {
 	// Node is constantly listening to its peers - this function sets up a tcp server and accepts connections
 	fmt.Println("Attempting to start listening ... ")
-	l, err := net.Listen("tcp", "127.0.0.1:60000")
+	l, err := net.Listen("tcp", "127.0.0.1:"+port)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 
-	fmt.Println("Now listening to potential peers on port 60000")
+	fmt.Println("Now listening to potential peers on port" + port)
 
 	defer l.Close()
 	for {
-		fmt.Println("Accepting connections on port 60000")
+		fmt.Println("Accepting connections on port " + port)
 		conn, errconn := l.Accept()
 		if errconn != nil {
 			fmt.Println("Error while accepting connections")
@@ -140,6 +145,10 @@ func handleNewPeerConn(conn net.Conn) {
 	if !(alreadyPeer(peers, remote_addr)) {
 		new_peer := peer{peer_address: remote_addr, peer_avg_resp_time: 0, peer_score: 1, files: []string{}}
 		peers = append(peers, new_peer)
+		err := os.Mkdir(conn.RemoteAddr().String()[:strings.IndexByte(conn.RemoteAddr().String(), ':')], os.ModePerm)
+		if err != nil {
+			fmt.Println(err)
+		}
 	} else {
 		fmt.Println("Peer was already known")
 	}
@@ -266,13 +275,14 @@ func sendFilesToPeer() {
 			if len(peers) != 0 {
 				for index, file := range files_at_peers {
 					if file.peer_adress == "NO_PEER" {
+						best_peers := chooseBestPeers(peers)
+						chosen_peer := best_peers[0]
+						fmt.Println("Sending file to peer ...", chosen_peer)
 
-						fmt.Println("Sending file to peer ...", peers[0])
-
-						res := sendFileToPeer(file.file_name, peers[0].peer_address)
+						res := sendFileToPeer(file.file_name, chosen_peer.peer_address)
 
 						if res {
-							(&files_at_peers[index]).peer_adress = peers[0].peer_address
+							(&files_at_peers[index]).peer_adress = chosen_peer.peer_address
 						} else {
 							fmt.Println("Could not send file to peer")
 						}
@@ -289,7 +299,7 @@ func sendFilesToPeer() {
 func sendFileToPeer(file_name string, peer_address string) bool {
 
 	// to send a file to a peer
-	conn, err := net.Dial("tcp", peer_address+":60001")
+	conn, err := net.Dial("tcp", peer_address+":"+port_to_contact)
 
 	if err != nil {
 		fmt.Println(err)
@@ -357,7 +367,10 @@ func checkOnFiles() {
 	for {
 		time.Sleep(10000000000)
 		fmt.Println("Peers : ", peers)
-		for _, peer := range peers {
+		for index, peer := range peers {
+			//fmt.Println("Checking files on peer ", peer)
+			number_of_checks := 0.0
+			number_of_ok_checks := 0.0
 			for _, file := range peer.files {
 
 				nonce := rand.Float64()
@@ -377,7 +390,7 @@ func checkOnFiles() {
 				expected_result := h.Sum(nil)
 				expected_result_string := fmt.Sprintf("%x", expected_result)
 				//fmt.Printf("Expected result for file %s with nonce %s : %x\n", file.file_name, nonce_str, expected_result)
-				conn, err := net.Dial("tcp", peer.peer_address+":60001")
+				conn, err := net.Dial("tcp", peer.peer_address+":"+port_to_contact)
 				if err != nil {
 					fmt.Println(err)
 					return
@@ -396,35 +409,44 @@ func checkOnFiles() {
 				}
 				received_check = received_check[0 : len(received_check)-1]
 
+				number_of_checks += 1
+
 				if received_check == expected_result_string {
-					fmt.Printf("\n")
-					fmt.Printf("\n")
-					fmt.Printf("Check on %s ok !\n", file)
-					fmt.Printf("Node response time : %s\n", elapsed)
-					fmt.Printf("\n")
-					fmt.Printf("\n")
+					number_of_ok_checks += 1
+					//fmt.Printf("\n")
+					//fmt.Printf("\n")
+					//fmt.Printf("Check on %s ok !\n", file)
+					//fmt.Printf("Node response time : %s\n", elapsed)
+					//fmt.Printf("\n")
+					//fmt.Printf("\n")
 
-					peer.peer_avg_resp_time = peer.peer_avg_resp_time/2 + int(elapsed)
-					fmt.Println("Updated average response time for peer :")
-					fmt.Println(peer)
+					(&peers[index]).peer_avg_resp_time = peer.peer_avg_resp_time/2 + int(elapsed)
+					//fmt.Println("Updated average response time for peer :")
+					//fmt.Println(peer)
 
-					fmt.Printf("\n")
-					fmt.Printf("\n")
+					//fmt.Printf("\n")
+					//fmt.Printf("\n")
 				} else {
-					fmt.Printf("\n")
-					fmt.Printf("\n")
+					//fmt.Printf("\n")
+					//fmt.Printf("\n")
 					fmt.Printf("File check on %s failed \n", file)
-					fmt.Printf("Received : %s\n", received_check)
 					fmt.Printf("Expected : %x\n", expected_result)
-					fmt.Println("Resending file")
-					fmt.Printf("\n")
-					fmt.Printf("\n")
+					//fmt.Println("Resending file")
+					//fmt.Printf("\n")
+					//fmt.Printf("\n")
 					fmt.Println("Resending file")
 					sendFileToPeer(file, peer.peer_address)
 
 				}
 
 			}
+
+			reliability := number_of_ok_checks / number_of_checks
+
+			fmt.Println("Peer's ratio : ", reliability)
+
+			(&peers[index]).peer_score = 0.3*(&peers[index]).peer_score + 0.7*reliability
+
 		}
 	}
 }
@@ -469,4 +491,30 @@ func inList(l []string, s string) bool {
 		}
 	}
 	return found
+}
+
+func chooseBestPeers(peers []peer) []peer {
+	// Function to choose best peer current peer
+	// default value for n should be 1
+
+	if len(peers) == 0 {
+		fmt.Println("No peers ! Please connect to the network")
+		panic(0)
+	} else if len(peers) == 1 {
+		fmt.Println("Only in communication with one peer")
+		return []peer{peers[0]}
+	}
+	max_resp_time := peers[0]
+	max_reliability := peers[0]
+	for _, peer := range peers {
+		if peer.peer_avg_resp_time < max_resp_time.peer_avg_resp_time {
+			max_resp_time = peer
+		}
+		if peer.peer_score > max_reliability.peer_score {
+			max_reliability = peer
+		}
+	}
+
+	return []peer{max_reliability, max_resp_time}
+
 }
