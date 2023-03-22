@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+  xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  
+  <url>
+    <loc>https://ipfscluster.io/news/</loc>
+    <lastmod>2022-03-22T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://ipfscluster.io/documentation/deployment/architecture/</loc>
+  </url>
+  
+  <url>
+    <loc>https://ipfscluster.io/documentation/reference/configuration/</loc>
+  </url>
+  
+  <url>
+    <loc>https://ipfscluster.io/documentation/</loc>
+  </url>
+  
+  <url>
+    <loc>https://ipfscluster.io/documentation/quickstart/</loc>
+  </url>
+  
+  <url>
+    <loc>https://ipfscluster.io/documentation/guides/pinning/</loc>
+  </url>
+  
+  <url>
+    <loc>https://ipfscluster.io/download/</loc>
+  </url>
+  
+  <url>
+    <loc>https://ipfscluster.io/documentation/collaborative/setup/</loc>
+  </url>
+  
+  <url>
+    <loc>https://ipfscluster.io/documentation/deployment/</loc>
+  </url>
+  
+  <url>
+    <loc>https://ipfscluster.io/documentation/reference/api/</loc>
+  </url>
+  
+  <url>
+    <loc>https://ipfscluster.io/documentation/reference/pinsvc_api/</loc>
+  </url>
+  
+  <url>
+    <loc>https://ipfscluster.io/documentation/collaborative/</loc>
+  </url>
+  
+  <url>
+    <loc>https://ipfscluster.io/documentation/guides/consensus/</loc>
+  </url>
+  
+  <url>
+    <loc>https://ipfscluster.io/documentation/guides/datastore/</loc>
+  </url>
+  
+  <url>
+    <loc>https://ipfscluster.io/documentation/deployment/setup/</loc>
+  </url>
+  
+  <url>
+    <loc>https://ipfscluster.io/documentation/reference/proxy/</loc>
+  </url>
+  
+  <url>
+    <loc>https://ipfscluster.io/documentation/collaborative/joining/</loc>
+  </url>
+  
+  <url>
+    <loc>https://ipfscluster.io/_release/</loc>
+  </url>
+  
+  <url>
+    <loc>https://ipfscluster.io/documentation/deployment/bootstrap/</loc>
+  </url>
+  
+  <url>
+    <loc>https://ipfscluster.io/documentation/guides/</loc>
+  </url>
+  
+  <url>
+    <loc>https://ipfscluster.io/documentation/guides/security/</loc>
+  </url>
+  
+  <url>
+    <loc>https://ipfscluster.io/support/</loc>
+  </url>
+  
+  <url>
+    <loc>https://ipfscluster.io/documentation/reference/ctl/</loc>
+  </url>
+  
+  <url>
+    <loc>https://ipfscluster.io/documentation/guides/backups/</loc>
+  </url>
+  
+  <url>
+    <loc>https://ipfscluster.io/documentation/deployment/automations/</loc>
+  </url>
+  
+  <url>
+    <loc>https://ipfscluster.io/documentation/reference/follow/</loc>
+  </url>
+  
+  <url>
+    <loc>https://ipfscluster.io/documentation/reference/service/</loc>
+  </url>
+  
+  <url>
+    <loc>https://ipfscluster.io/documentation/guides/peerset/</loc>
+  </url>
+  
+  <url>
+    <loc>https://ipfscluster.io/documentation/reference/</loc>
+  </url>
+  
+  <url>
+    <loc>https://ipfscluster.io/documentation/guides/metrics/</loc>
+  </url>
+  
+  <url>
+    <loc>https://ipfscluster.io/documentation/guides/upgrades/</loc>
+  </url>
+  
+  <url>
+    <loc>https://ipfscluster.io/documentation/roadmap/</loc>
+  </url>
+  
+  <url>
+    <loc>https://ipfscluster.io/documentation/guides/troubleshooting/</loc>
+  </url>
+  
+  <url>
+    <loc>https://ipfscluster.io/documentation/guides/monitoring/</loc>
+  </url>
+  
+  <url>
+    <loc>https://ipfscluster.io/documentation/guides/k8s/</loc>
+  </url>
+  
+  <url>
+    <loc>https://ipfscluster.io/news/state-of-the-clusters-march-2022/</loc>
+    <lastmod>2022-03-22T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://ipfscluster.io/news/state-of-the-clusters-jan-2022/</loc>
+    <lastmod>2022-01-17T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://ipfscluster.io/news/0.13.3_nft_storage/</loc>
+    <lastmod>2021-05-14T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://ipfscluster.io/news/0.13.1_release/</loc>
+    <lastmod>2021-01-14T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://ipfscluster.io/news/0.12.0_release/</loc>
+    <lastmod>2019-12-20T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://ipfscluster.io/news/0.11.0_release/</loc>
+    <lastmod>2019-10-01T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://ipfscluster.io/news/0.10.0_release/</loc>
+    <lastmod>2019-03-07T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://ipfscluster.io/news/0.9.0_release/</loc>
+    <lastmod>2019-02-18T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://ipfscluster.io/news/0.8.0_release/</loc>
+    <lastmod>2019-01-16T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://ipfscluster.io/news/0.7.0_release/</loc>
+    <lastmod>2018-10-31T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://ipfscluster.io/news/20181003_0.6.0_release/</loc>
+    <lastmod>2018-10-03T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://ipfscluster.io/news/20180824_0.5.0_release/</loc>
+    <lastmod>2018-08-23T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://ipfscluster.io/news/cluster_rpc_components/</loc>
+    <lastmod>2018-08-22T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://ipfscluster.io/news/20180615_pintracker_revamp/</loc>
+    <lastmod>2018-06-15T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://ipfscluster.io/news/20180604_0.4.0_release/</loc>
+    <lastmod>2018-06-04T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://ipfscluster.io/news/captains_log/</loc>
+    <lastmod>2017-01-23T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://ipfscluster.io/categories/</loc>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://ipfscluster.io/</loc>
+    <lastmod>2022-03-22T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://ipfscluster.io/tags/</loc>
+    <priority>0</priority>
+  </url>
+  
+</urlset>
