@@ -1,0 +1,245 @@
+15     },
+ 16     "dial_peer_timeout": "3s",
+ 17     "state_sync_interval": "5m0s",
+ 18     "pin_recover_interval": "12m0s",
+ 19     "replication_factor_min": -1,
+ 20     "replication_factor_max": -1,
+ 21     "monitor_ping_interval": "15s",
+ 22     "peer_watch_interval": "5s",
+ 23     "mdns_interval": "10s",
+ 24     "pin_only_on_trusted_peers": false,
+ 25     "disable_repinning": true,
+ 26     "peer_addresses": []
+ 27   },
+ 28   "consensus": {
+ 29     "crdt": {
+ 30       "cluster_name": "ipfs-cluster",
+ 31       "trusted_peers": [
+ 32         "*"
+ 33       ],
+ 34       "batching": {
+ 35         "max_batch_size": 0,
+ 36         "max_batch_age": "0s"
+ 37       },
+ 38       "repair_interval": "1h0m0s"
+ 39     }
+ 40   },
+ 41   "api": {
+ 42     "ipfsproxy": {
+ 43       "listen_multiaddress": "/ip4/127.0.0.1/tcp/9095",
+ 44       "node_multiaddress": "/ip4/127.0.0.1/tcp/5001",
+ 45       "log_file": "",
+ 46       "read_timeout": "0s",
+ 47       "read_header_timeout": "5s",
+ 48       "write_timeout": "0s",
+ 49       "idle_timeout": "1m0s",
+ 50       "max_header_bytes": 4096
+ 51     },
+ 52     "pinsvcapi": {
+ 53       "http_listen_multiaddress": "/ip4/127.0.0.1/tcp/9097",
+ 54       "read_timeout": "0s",
+ 55       "read_header_timeout": "5s",
+ 56       "write_timeout": "0s",
+ 57       "idle_timeout": "2m0s",
+ 58       "max_header_bytes": 4096,
+ 59       "basic_auth_credentials": null,
+ 60       "http_log_file": "",
+ 61       "headers": {},
+ 62       "cors_allowed_origins": [
+ 63         "*"
+ 64       ],
+ 65       "cors_allowed_methods": [
+ 66         "GET"
+ 67       ],
+ 68       "cors_allowed_headers": [],
+ 69       "cors_exposed_headers": [
+ 70         "Content-Type",
+ 71         "X-Stream-Output",
+ 72         "X-Chunked-Output",
+ 73         "X-Content-Length"
+ 74       ],
+ 75       "cors_allow_credentials": true,
+ 76       "cors_max_age": "0s"
+ 77     },
+ 78     "restapi": {
+ 79       "http_listen_multiaddress": "/ip4/127.0.0.1/tcp/9094",
+ 80       "read_timeout": "0s",
+ 81       "read_header_timeout": "5s",
+ 82       "write_timeout": "0s",
+ 83       "idle_timeout": "2m0s",
+ 84       "max_header_bytes": 4096,
+ 85       "basic_auth_credentials": null,
+ 86       "http_log_file": "",
+ 87       "headers": {},
+ 88       "cors_allowed_origins": [
+ 89         "*"
+ 90       ],
+ 91       "cors_allowed_methods": [
+ 92         "GET"
+ 93       ],
+ 94       "cors_allowed_headers": [],
+ 95       "cors_exposed_headers": [
+ 96         "Content-Type",
+ 97         "X-Stream-Output",
+ 98         "X-Chunked-Output",
+ 99         "X-Content-Length"
+100       ],
+101       "cors_allow_credentials": true,
+102       "cors_max_age": "0s"
+103     }
+104   },
+105   "ipfs_connector": {
+106     "ipfshttp": {
+107       "node_multiaddress": "/ip4/127.0.0.1/tcp/5001",
+108       "connect_swarms_delay": "30s",
+109       "ipfs_request_timeout": "5m0s",
+110       "pin_timeout": "2m0s",
+111       "unpin_timeout": "3h0m0s",
+112       "repogc_timeout": "24h0m0s",
+113       "informer_trigger_interval": 0
+114     }
+115   },
+116   "pin_tracker": {
+117     "stateless": {
+118       "concurrent_pins": 10,
+119       "priority_pin_max_age": "24h0m0s",
+120       "priority_pin_max_retries": 5
+121     }
+122   },
+123   "monitor": {
+124     "pubsubmon": {
+125       "check_interval": "15s"
+126     }
+127   },
+128   "allocator": {
+129     "balanced": {
+130       "allocate_by": [
+131         "tag:group",
+132         "freespace"
+133       ]
+134     }
+135   },
+136   "informer": {
+137     "disk": {
+138       "metric_ttl": "30s",
+139       "metric_type": "freespace"
+140     },
+141     "pinqueue": {
+142       "metric_ttl": "30s",
+143       "weight_bucket_size": 100000
+144     },
+145     "tags": {
+146       "metric_ttl": "30s",
+147       "tags": {
+148         "group": "default"
+149       }
+150     }
+151   },
+152   "observations": {
+153     "metrics": {
+154       "enable_stats": false,
+155       "prometheus_endpoint": "/ip4/127.0.0.1/tcp/8888",
+156       "reporting_interval": "2s"
+157     },
+158     "tracing": {
+159       "enable_tracing": false,
+160       "jaeger_agent_endpoint": "/ip4/0.0.0.0/udp/6831",
+161       "sampling_prob": 0.3,
+162       "service_name": "cluster-daemon"
+163     }
+164   },
+165   "datastore": {
+166     "pebble": {
+167       "pebble_options": {
+168         "cache_size_bytes": 1073741824,
+169         "bytes_per_sync": 1048576,
+170         "disable_wal": false,
+171         "flush_delay_delete_range": 0,
+172         "flush_delay_range_key": 0,
+173         "flush_split_bytes": 4194304,
+174         "format_major_version": 1,
+175         "l0_compaction_file_threshold": 750,
+176         "l0_compaction_threshold": 4,
+177         "l0_stop_writes_threshold": 12,
+178         "l_base_max_bytes": 134217728,
+179         "max_open_files": 1000,
+180         "mem_table_size": 67108864,
+181         "mem_table_stop_writes_threshold": 20,
+182         "read_only": false,
+183         "wal_bytes_per_sync": 0,
+184         "levels": [
+185           {
+186             "block_restart_interval": 16,
+187             "block_size": 4096,
+188             "block_size_threshold": 90,
+189             "compression": 2,
+190             "filter_type": 0,
+191             "filter_policy": 10,
+192             "index_block_size": 4096,
+193             "target_file_size": 4194304
+194           },
+195           {
+196             "block_restart_interval": 16,
+197             "block_size": 4096,
+198             "block_size_threshold": 90,
+199             "compression": 2,
+200             "filter_type": 0,
+201             "filter_policy": 10,
+202             "index_block_size": 4096,
+203             "target_file_size": 8388608
+204           },
+205           {
+206             "block_restart_interval": 16,
+207             "block_size": 4096,
+208             "block_size_threshold": 90,
+209             "compression": 2,
+210             "filter_type": 0,
+211             "filter_policy": 10,
+212             "index_block_size": 4096,
+213             "target_file_size": 16777216
+214           },
+215           {
+216             "block_restart_interval": 16,
+217             "block_size": 4096,
+218             "block_size_threshold": 90,
+219             "compression": 2,
+220             "filter_type": 0,
+221             "filter_policy": 10,
+222             "index_block_size": 4096,
+223             "target_file_size": 33554432
+224           },
+225           {
+226             "block_restart_interval": 16,
+227             "block_size": 4096,
+228             "block_size_threshold": 90,
+229             "compression": 2,
+230             "filter_type": 0,
+231             "filter_policy": 10,
+232             "index_block_size": 4096,
+233             "target_file_size": 67108864
+234           },
+235           {
+236             "block_restart_interval": 16,
+237             "block_size": 4096,
+238             "block_size_threshold": 90,
+239             "compression": 2,
+240             "filter_type": 0,
+241             "filter_policy": 10,
+242             "index_block_size": 4096,
+243             "target_file_size": 134217728
+244           },
+245           {
+246             "block_restart_interval": 16,
+247             "block_size": 4096,
+248             "block_size_threshold": 90,
+249             "compression": 2,
+250             "filter_type": 0,
+251             "filter_policy": 10,
+252             "index_block_size": 4096,
+253             "target_file_size": 268435456
+254           }
+255         ]
+256       }
+257     }
+258   }
+259 }
