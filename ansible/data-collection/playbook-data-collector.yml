@@ -1,0 +1,27 @@
+- hosts: IPFS-nodes
+  gather_facts: no
+  tasks: 
+    - name: Collect data
+      loop: 
+        - 1
+      when: output != 0
+      block:
+        - name: Get size of "blocks" dir
+          shell: du -sh IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/.ipfs/blocks 
+          register: command_output
+        - name: Write to local log
+          shell : echo "{{ hostvars[inventory_hostname]['label'] }} -- {{ command_output.stdout }} \n" >> blocks.txt
+          delegate_to: localhost
+          register: output
+
+
+
+
+
+  # tasks:
+  #   - name: Get size of "blocks" dir
+  #     shell: du -sh IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/.ipfs/blocks 
+  #     register: command_output
+  #   - name: Write to local log
+  #     shell : echo "{{ hostvars[inventory_hostname]['label'] }} -- {{ command_output.stdout }} \n" >> blocks.txt
+  #     delegate_to: localhost

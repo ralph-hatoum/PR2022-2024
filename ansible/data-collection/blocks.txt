@@ -1,0 +1,4 @@
+node6 -- 52K	IPFS_nodes/node6/kubo/.ipfs/blocks 
+
+node4 -- 544K	IPFS_nodes/node4/kubo/.ipfs/blocks 
+

@@ -1,0 +1,18 @@
+#################################################################
+#    ANSIBLE PLAYBOOK - IPFS AND IPFSCLUSTER LAUNCHER           #
+#                                                               #
+# To start network : (will ask for ssh password)                #
+# ansible-playbook playbook-u.yml -i hosts.ini --ask-pass       #
+#################################################################                                                               
+
+
+# STARTING IPFS AND IPFSCLUSTER NETWORKS
+
+- hosts: IPFS-nodes
+  gather_facts: no
+  tasks:
+    - name: Start IPFS dameons
+      shell: "(IPFS_PATH=IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/.ipfs nohup IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/ipfs daemon --enable-gc >/dev/null 2>&1 &)"
+   
+    
+

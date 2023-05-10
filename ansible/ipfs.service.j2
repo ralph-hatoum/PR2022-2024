@@ -1,0 +1,9 @@
+[Unit]
+Description=IPFS daemon
+
+[Service]
+ExecStart=IPFS_PATH=IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/.ipfs IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/ipfs daemon
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

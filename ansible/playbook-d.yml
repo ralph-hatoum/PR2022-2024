@@ -1,0 +1,20 @@
+#SHUTTING DOWN BOTH NETWORKS
+
+# - hosts: IPFScluster-nodes
+#   gather_facts: no
+#   tasks:
+#     - name: Kill IPFS network
+#       shell: killall ipfs-cluster-service
+#       register: command_output
+#     - name: Display outputs
+#       debug: var=command_output.stdout_lines
+
+
+- hosts: IPFS-nodes
+  gather_facts: no
+  tasks:
+    - name: Kill IPFS network
+      shell: killall ipfs
+      register: command_output
+    - name: Display outputs
+      debug: var=command_output.stdout_lines
