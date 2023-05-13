@@ -13,6 +13,11 @@
   tasks:
     - name: Start IPFS dameons
       shell: "(IPFS_PATH=IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/.ipfs nohup IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/ipfs daemon --enable-gc >/dev/null 2>&1 &)"
-   
-    
+    - name: Start data collector 
+      shell: nohup python IPFS_nodes/data-collection-node.py >/dev/null 2>&1 &
 
+- hosts: datacollector
+  gather_facts: no
+  tasks:
+    - name: Start data aggregator
+      shell: nohup python IPFS_nodes/data-node/data-collection-central.py >/dev/null 2>&1 &

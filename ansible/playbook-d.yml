@@ -16,5 +16,16 @@
     - name: Kill IPFS network
       shell: killall ipfs
       register: command_output
+    - name: Kill data collectors
+      shell: killall python
     - name: Display outputs
       debug: var=command_output.stdout_lines
+
+- hosts: datacollector
+  gather_facts: no
+  tasks:
+  - name: Kill data aggregator
+    shell: killall python
+    register: command_output
+  - name: Display outputs
+    debug: var=command_output.stdout_lines
