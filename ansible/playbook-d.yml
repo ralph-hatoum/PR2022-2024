@@ -17,7 +17,7 @@
       shell: killall ipfs
       register: command_output
     - name: Kill data collectors
-      shell: killall python
+      shell: killall python3
     - name: Display outputs
       debug: var=command_output.stdout_lines
 
@@ -25,7 +25,7 @@
   gather_facts: no
   tasks:
   - name: Kill data aggregator
-    shell: killall python
+    shell: killall python3
     register: command_output
   - name: Display outputs
     debug: var=command_output.stdout_lines
