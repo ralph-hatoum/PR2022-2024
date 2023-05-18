@@ -1,5 +1,5 @@
 import re
-import mysql.connector
+#import mysql.connector
 import datetime
 import os
 import socket
@@ -11,7 +11,8 @@ METRICS_TO_FETCH = ["datablocks_size"]
 
 machines = {}
 
-with open("./hosts.ini") as f:
+
+with open("./IPFS_nodes/data-node/hosts.ini") as f:
     lines = f.readlines()
 
 current_machine_group = ""
@@ -39,9 +40,13 @@ for line in lines:
 print("Machines dictionary ",machines)
 print("Machine groups ", groups)
 
+groups.remove("datacollector")
+
 ################## PREPARING FOLDERS AND TEXT FILES FOR WRITING DATA ####################
 
 current_date_time = datetime.datetime.now()
+
+os.system("mkdir -p ./data")
 
 os.mkdir("./data/"+str(current_date_time))
 
@@ -69,23 +74,28 @@ signal.signal(signal.SIGINT, handler_stop_signals)
 signal.signal(signal.SIGTERM, handler_stop_signals)
 
 while collection_flag:
-    print("coLLECTING data ...")
-    time.sleep(2)
-    # for group in groups:
-    #     for machine in machines[group]:
-    #         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    #         s.connect((machine, 62000))
+    for group in groups:
+        for machine in machines[group]:
+            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            print(machine[8:])
+            s.connect((machine[8:], 62000))
+            #s.connect((machine, 62000))
 
-    #         s.send(b"data-pls")
+            s.send(b"data-pls")
 
-    #         data = s.recv(1024)
-    #         data = data.decode()
+            data = s.recv(1024)
+            data = data.decode()
             
-    #         for metric in METRICS_TO_FETCH:
-    #             with open(f"./data/{str(current_date_time)}/{group}/{machine}/{metric}.txt","x") as f:
-    #                 f.write(f"{collection_period} - {data} \n")
+            for metric in METRICS_TO_FETCH:
+                path = f"./data/{str(current_date_time)}/{group}/{machine}/{metric}.txt"
+                if os.path.exists(path):
+                    with open(path,"a+") as f:
+                        f.write(f"{collection_period} - {data} \n")
+                else:
+                    with open(f"./data/{str(current_date_time)}/{group}/{machine}/{metric}.txt","x") as f:
+                        f.write(f"{collection_period} - {data} \n")
 
-
+    collection_period +=1
 ############# AUTO PLOTTER AFTER SIGNAL TO KILL DATA COLLECTOR ###########
 
-
+print("POST SIGINT")
