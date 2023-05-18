@@ -11,10 +11,13 @@
 - hosts: IPFS-nodes
   gather_facts: no
   tasks:
+    - copy:
+        src: to_copy/data-collection-node.py
+        dest: IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/data-collection-node.py
     - name: Start IPFS dameons
       shell: "(IPFS_PATH=IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/.ipfs nohup IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/ipfs daemon --enable-gc >/dev/null 2>&1 &)"
     - name: Start data collector 
-      shell: nohup python3 IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/data-collection-node.py >/dev/null 2>&1 &
+      shell: nohup python3 IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/data-collection-node.py {{ hostvars[inventory_hostname]['label_ip'] }} >/dev/null 2>&1 &
 
 - hosts: datacollector
   gather_facts: no
