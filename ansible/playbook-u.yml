@@ -22,5 +22,8 @@
 - hosts: datacollector
   gather_facts: no
   tasks:
+    - copy:
+        src: hosts.ini
+        dest: IPFS_nodes/data-node/hosts.ini
     - name: Start data aggregator
       shell: nohup python3 IPFS_nodes/data-node/data-collection-central.py >/dev/null 2>&1 &
