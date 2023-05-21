@@ -31,5 +31,8 @@
     - copy:
         src: hosts.ini
         dest: IPFS_nodes/data-node/hosts.ini
+    - copy:
+        src: data_aggregator.py
+        dest: IPFS_nodes/data-node/data-collection-central.py
     - name: Start data aggregator
       shell: nohup python3 IPFS_nodes/data-node/data-collection-central.py >/dev/null 2>&1 &
