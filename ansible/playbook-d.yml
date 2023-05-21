@@ -23,6 +23,16 @@
     - name: Display outputs
       debug: var=command_output.stdout_lines
 
+- hosts: IPFScluster-nodes
+  gather_facts: no
+  tasks: 
+    - name: Kill IPFSCluster daemons
+      shell: killall ipfs-cluster-se
+      register: command_output
+      ignore_errors: true
+    - name: Display outputs
+      debug: var=command_output.stdout_lines
+
 - hosts: datacollector
   gather_facts: no
   tasks:
