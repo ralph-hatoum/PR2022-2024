@@ -1,0 +1,86 @@
+
+Š‚clear;
+close all; 
+
+Nx=64     % Nb d'echantillons d'entrée par trame 
+Nh=11     % Nb de coef FIR
+T=20      % Nb de trames a générer pour le signal d'entrée
+
+%% NOMS des VARIABLES ************************************************************************
+% trame d'entree avec préfixe: input 
+% trame d'entrée :  X
+% trame de sortie (filtrée FIR): Y
+% *************************************************************************
+%%
+
+%% *************************************************************************
+% Definition des coeff du filtre:
+%%
+% filtre passe bas, FDATool FIR Window Hamming , wc=0.2 ,  11 coef
+h= [0.0000    0.0093    0.0476    0.1224    0.2022    0.2370    0.2022    0.1224 0.0476    0.0093    0.0000]
+%% *************************************************************************
+% Generation d'un tableau de T trames
+% *************************************************************************
+% Pour tester avec une sin => decommenter la ligne voulue
+% paramètre F0 = frequence de la sinusoide, en frequence normalisée
+% Attention FDATool considére que 1 correspond à Fe/2 alors qu'ici 1
+% correspond à Fe.
+% F0 doit être choisi tq :  0< F0 < 0.5 autrement dit F0 ne peut pas
+% dépasser Fe/2 (Merci Mr Shannon !!!)
+[msg,X]=generation_tableau_trames('',Nx,T,0.05);  % Sin BF dans la bande passante
+%[msg,X]=generation_tableau_trames('',Nx,T,0.1);   % Sin BF à la frequence de coupure
+%[msg,X]=generation_tableau_trames('',Nx,T,0.2);   % Sin HF dans la bande atténuée
+
+%%
+% *************************************************************************
+% Resultat de la convolution : vecteur de Nx+Nh-1 echantillons
+% Nh-1 echantillons au départ correspondant a la phase transitoire
+% => Obligation de rallonger artificiellement la trame à filtrer en
+% rajoutant Nh-1 échantillons au debut =>  Gestion du prefixe 
+% Signal d'entrée avec prefixe  : input (= trame d'entrée avec préfixe)
+% trame d'entrée :  X
+% trame de sortie : Y
+% *************************************************************************
+
+% Traitement particulier de la 1ere trame 
+% Pas de trame precedente => on met arbitrairement les echantillons du
+% prefixe à 0
+prefixe=zeros(1,Nh-1);
+input(1,:)=[prefixe  X(1,:)];
+
+% *************************************************************************
+% FILTRAGE FIR 
+% filtre FIR:  Appel d'une fonction de convolution
+% *************************************************************************
+for j=(1:T) % j : index de la trame en cours de traitement
+    Y(j,:)=convolution_FIR(input(j,:),h,Nx,Nh);
+    %Gestion du prefixe: on recopie les (Nh-1) derniers echantillons de la trame
+    % étendue (avec le préfixe) apres le filtrage...
+    % !!! attention à la difference de gestion des indices des tableaux 
+    % entre Matlab et langage C  (increment de 1 pour Matlab par rapport au C)
+    if (j<T)
+        input(j+1,:)=[input(j,Nx+1:Nx+Nh-1) X(j+1,:)];
+    end;
+end
+
+%% Verification effet du filtrage
+% comparaison signal d'entrée et de sortie
+sig_Y=[]
+sig_X=[]
+for j=(1:T)
+    sig_Y=[sig_Y Y(j,:)];
+    sig_X=[sig_X X(j,:)];
+end
+    subplot(3,1,1) ; plot(sig_X);title('Input Signal');
+    subplot(3,1,2) ; plot(sig_Y);title('Output Signal');
+    subplot(3,1,3) ; stem(h);title('Impulse Response');
+    
+   
+figure
+freqz(h,1);    title('Frequency Response');
+% Spectre du signal d'origine
+figure; 
+subplot(2,1,1) ;plot((0:1:Nx-1)*1/Nx, abs(fft(sig_X,Nx)));title('Spectre Input Signal');
+subplot(2,1,2) ;plot((0:1:Nx-1)*1/Nx, abs(fft(sig_Y,Nx)));title('Spectre Output Signal');
+
+‚

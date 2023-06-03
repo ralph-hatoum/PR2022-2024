@@ -1,0 +1,10 @@
+
+¦žfunction decode(s)
+
+val = spectrogram(data, 4160, 0, [697, 770, 852, 941, 1209,1336,1477],8000, 'yaxis');
+val = abs(val);
+
+for i = 1:10
+    max = 
+    end
+endž

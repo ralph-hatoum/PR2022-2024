@@ -1,0 +1,121 @@
+
+ô-ì-% pb avec le cheby????
+% reprendre pour programmation +elegante...
+clear;
+close all;
+%Nx=128   % Nb d'echantillons par trame (test Vega)
+Nx=48     % Nb d'echantillons par trame 
+%Nh=3      % Nb de coef IIR => ordre 2
+%Nh=5     % Nb de coef FIR => ordre 4
+Nh=11     % Nb de coef FIR => ordre 5
+%T=5800   % Nb de trames (test Vega)
+T=20     % Nb de trames
+%T=1
+
+% ************************************************************************
+% trame d'entree avec préfixe: input 
+% trame de sortie avec préfixe: output (attention ne gere que le préfixe) 
+% trame d'entrée :  X
+% trame de sortie (filtrée IIR): Y
+% *************************************************************************
+
+
+% *************************************************************************
+% Definition des coeff du filtre
+% *************************************************************************
+% coefficients arrondis avec 5 et 6 chiffres significatifs
+b_arro =   1.0e-003 *[ 0.0017  0.0168    0.0758    0.2020    0.3536    0.4243    0.3536  0.2020    0.0758    0.0168    0.0017];
+a_arro= [1.0000     -5.9876     16.6722    -22.2588      32.1598  -25.6017   14.4057  -5.6471    1.4737  -0.2309    0.0165];
+
+% coefficients arrondis avec 8 chiffres significatifs
+b_arro_1 =   1.0e-003 *[ 0.0016835  0.016835    0.075761    0.202029    0.353552    0.424262    0.35355  0.202029    0.075761    0.016835    0.0016835];
+a_arro_1= [1.0000     -5.987589     16.672193    -22.258787      32.159756  -25.601749   14.405687  -5.647074    1.473727  -0.230919    0.016479];
+
+% avec export dans un fichier Header C=> Précision double flottant, OK
+b_reel=[1.683581407233e-006, 1.683581407233e-005, 7.576116332548e-005, 0.000202029768868, 0.0003535520955189, 0.0004242625146227, 0.0003535520955189, 0.000202029768868,  7.576116332548e-005, 1.683581407233e-005, 1.683581407233e-006]
+a_reel=[ 1,   -5.987589629817,      16.672193323,    -28.2587879002,       32.15975648769,   -25.60174959705,    14.40568742621,   -5.647074344132, 1.473727936974,   -0.230919345862,  0.01647963054713]
+
+
+
+%%
+a=a_reel;    % initialisation des coeff IIR
+b=b_reel;
+%% *************************************************************************
+%% *************************************************************************
+% Generation d'un tableau de T trames
+% Si pas de fichier wav, par defaut genration d'un signa sinusoidal 
+% *************************************************************************
+% Pour tester avec une sin => decommenter la ligne voulue
+% paramètre F0 = frequence de la sinusoide, en frequence normalisée
+% Attention FDATool considére que 1 correspond à Fe/2 alors qu'ici 1
+% correspond à Fe.
+% F0 doit être choisi tq :  0< F0 < 0.5 autrement dit F0 ne peut pas
+% dépasser Fe/2 (Merci Mr Shannon !!!)
+[msg,X]=generation_tableau_trames('',Nx,T,0.05);  % Sin BF dans la bande passante
+%[msg,X]=generation_tableau_trames('',Nx,T,0.1);   % Sin BF à la frequence de coupure
+%[msg,X]=generation_tableau_trames('',Nx,T,0.2);   % Sin HF dans la bande atténuée
+%% *************************************************************************
+% IIR régi par une equation aux differences : 
+% Besoin de connaitre les Nh-1 echantillons précedentes de Nh'entrée et 
+%                     les Nh-1 echantillons de la sortie
+% 
+% => Obligation de concaténer les Nh-1 derniers échantillons de la trame d'entrée precedente au debut 
+%      à la  trame à filtrer   =>  Gestion du prefixe  (prefixe_X)
+%    trame resultante : input
+% => Obligation de concaténer  les Nh-1 derniers échantillons de la trame de sortie precedente au debut 
+%      à la trame de sortie suivante   =>  Gestion du prefixe (prefixe_Y)
+%    trame resultante : output (attention, contrairement au programme C,
+%    output ne gere que le prefixe et Nx'est pas mis à jour par les
+%    echantillons de sortie du filtrage...
+% *************************************************************************
+%
+%% Traitement particulier des 1ere trames d'entrée et de sortie (pas de trame precedente, on met les
+% echantillons du prefixe à 0)
+prefixe_X=zeros(1,Nh-1);
+input(1,:)=[prefixe_X  X(1,:)];
+output(1,:)=[prefixe_X  zeros(1,Nx)];
+
+%%
+
+%% *************************************************************************
+% FILTRAGE IIR 
+% filtre IIR:  Implantation de Nh'equation aux differences 
+%   y[Nx]= b1 x[Nx] + .. + bm x[Nx-m] - a2 y[Nx-1] + .. + am y[Nx-m]
+% *************************************************************************
+for j=(1:T)
+    Y(j,:)=Eq_diff_IIR(input(j,:),output(j,:),b,a,Nx,Nh);
+    % mise à jour de la trame de sortie suivante avec le préfixe constitué des derniers echantillons de la trame de sortie 
+    if (j<T)
+        prefixe_X = input(j, Nx+1 : Nx+Nh-1);    % prefixe pour la trame d'entrée
+        input(j+1,:)=[prefixe_X   X(j+1,:)];
+        prefixe_Y = Y( j , Nx-(Nh-1)+1:Nx );    % prefixe pour la trame de sortie
+        output(j+1,:)=[prefixe_Y   zeros(1,Nx)];
+         % !!! attention à la difference de gestion des indices des tableaux 
+         % entre Matlab et langage C  (increment de 1 pour Matlab par rapport au C)
+     end
+end
+
+%% Verification effet du filtrage
+% comparaison signal d'entrée et de sortie
+sig_Y = [];
+sig_X = [];
+for j=(1:T)
+    sig_Y=[sig_Y Y(j,:)];
+    sig_X=[sig_X X(j,:)];
+end
+
+figure
+subplot(2,1,1) ; plot((1:1:Nx*T)/Nx,sig_X);   title('Input Signal');
+subplot(2,1,2) ; plot((1:1:Nx*T)/Nx,sig_Y);   title('Output Signal');
+
+figure;
+freqz(b,a);         title('Frequency Response');
+figure
+[h,t]=impz(b,a);     
+plot(t,h);          title('Impulse Response');
+% Spectre du signal d'origine
+figure;
+subplot(2,1,1) ;plot((0:1:Nx-1)*1/Nx, abs(fft(sig_X,Nx)));title('Spectre Input Signal');
+subplot(2,1,2) ;plot((0:1:Nx-1)*1/Nx, abs(fft(sig_Y,Nx)));title('Spectre Output Signal');
+
+ì-
