@@ -28,7 +28,6 @@ print("Swarm key generated")
 
 ## BOOTSTRAP SETUP ##
 
-
 bootstrap_ipfs_id = "test"
 
 ## IPFS NODE CONFIG FILES ##
@@ -36,11 +35,13 @@ bootstrap_ipfs_id = "test"
 print("Generating config files in directory configs...")
 
 os.system("mkdir -p configs")
-
 for node in nodes:
     os.system(f"mkdir -p configs/{node}")
-    os.system(f"cp config_model.json configs/{node}/config.json")
-    with open(f"configs/{node}/config.json","r") as f:
+
+for node in nodes:
+    os.system(f"mkdir -p configs/{node}/ipfs")
+    os.system(f"echo  > configs/{node}/ipfs/config.json")
+    with open(f"config_model_ipfs.json","r") as f:
         config = json.load(f)
 
     # MODIFYING NEEDED VALUES #
@@ -49,11 +50,31 @@ for node in nodes:
     config["GCPeriod"]="10m"
     config["StorageMax"]="200kB"
 
-    with open(f"configs/{node}/config.json","w",encoding='utf-8') as f:
+    with open(f"configs/{node}/ipfs/config.json","w") as f:
         json.dump(config, f, indent=4,ensure_ascii=False)
     
-    os.system(f"mv configs/{node}/config.json configs/{node}/config")
-    os.system(f"rm -f configs/{node}/config.json")
-    print(f"Configuration generated for node {node} : \033[0;32mOK!\033[0m")
+    os.system(f"mv configs/{node}/ipfs/config.json configs/{node}/ipfs/config")
+    os.system(f"rm -f configs/{node}/ipfs/config.json")
+    print(f"IPFS configuration generated for node {node} : \033[0;32mOK!\033[0m")
 
 
+## IPFSCluster NODE CONFIG FILES ##
+
+cluster_secret=""
+
+for node in nodes:
+    print(node)
+    os.system(f"mkdir -p configs/{node}/ipfs-cluster")
+    os.system(f"echo  > configs/{node}/ipfs-cluster/service.json")
+    with open("config_model_cluster.json","r") as f:
+        config = json.load(f)
+    
+    # MODIFYING NEEDED VALUES #
+
+    config["cluster"]["peername"]=node
+    config["cluster"]["secret"]=cluster_secret
+
+    with open(f"configs/{node}/ipfs-cluster/service.json","w") as f:
+        json.dump(config, f, indent=4)
+    
+    print(f"IPFS-cluster configuration generated for node {node} : \033[0;32mOK!\033[0m")

@@ -23,6 +23,10 @@
       shell: chmod u+x IPFS_nodes/test/kubo/ipfs
     - name: Initialize IPFS node
       shell: "IPFS_PATH=IPFS_nodes/test/kubo/.ipfs IPFS_nodes/test/kubo/ipfs init"
+    - copy: 
+      src : kubo/swarm.key
+      dest: IPFS_nodes/test/kubo/.ipfs/swarm.key
+    
     # - name: Start IPFS dameons
     #   shell: "IPFS_PATH=IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/.ipfs nohup IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/ipfs daemon --enable-gc >/dev/null 2>&1 &"
     # - name: Start data collector 
