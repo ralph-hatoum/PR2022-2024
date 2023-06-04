@@ -15,7 +15,7 @@ def swarm_key_generator(filename):
         f.write(key.decode())
 
 
-nodes = ["node1","node3"]
+nodes = ["node1","node3","test"]
 
 
 print("Generating all needed configuration files and swarm key ...")
