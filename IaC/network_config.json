@@ -1,0 +1,19 @@
+{
+    "Credentials":"rhatoum",
+    "IPFS_network":
+    {
+        "Nodes": 4,
+        "GCPeriod": "15m",
+        "MaxStorage": "15kb"
+        
+    },
+    "IPFS_Clusters": 
+    {
+        "1":
+        {
+            "Nodes": 2,
+            "GCPeriod": "15m",
+            "MaxStorage": "15kb"
+        }
+    }
+}
