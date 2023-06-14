@@ -2,6 +2,8 @@
 
 The aim of this project is to provide a quick and efficient way to deploy a private IPFS network over a set of machines accessible via SSH connection. The tool also allows to setup an IPFSCluster within the IPFS network, as well as a data collection system to retrieve metrics in order to quantify and analyse the behavior of the network. 
 
+This project was developped as part of my test bench for my masters thesis about IPFS and local private clouds.
+
 
 ## General architecture 
 
