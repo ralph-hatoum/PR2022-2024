@@ -127,14 +127,3 @@
     - name : Start IPFSCluster daemons
       shell: IPFS_CLUSTER_PATH=IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/ipfs-cluster-service/.ipfs-cluster nohup IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/ipfs-cluster-service/ipfs-cluster-service daemon >/dev/null 2>&1 &
 
-- hosts: datacollector
-  gather_facts: no
-  tasks:
-    - copy:
-        src: hosts.ini
-        dest: IPFS_nodes/data-node/hosts.ini
-    - copy:
-        src: data_aggregator.py
-        dest: IPFS_nodes/data-node/data-collection-central.py
-    - name: Start data aggregator
-      shell: nohup python3 IPFS_nodes/data-node/data-collection-central.py >/dev/null 2>&1 &

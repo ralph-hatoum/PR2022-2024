@@ -8,6 +8,40 @@ This project was developped as part of my test bench for my masters thesis about
 
 You'll need to describe your network in a JSON file. You'll need to define a number of IPFS nodes. You can optionally define IPFSCluster clusters. An example of a configuration is in the file network_config.json
 
+```JSON
+{
+    "Credentials":"rhatoum",
+    "IPFS_network":
+    {
+        "Nodes": 6,
+        "GCPeriod": "15m",
+        "MaxStorage": "15kb"
+        
+    },
+   "IPFS_Clusters": {
+       "1":{
+           "Nodes":3
+       },
+       "2":{
+            "Nodes":2
+       }
+   }
+}
+````
+| JSON tag | Description | Required ?|
+|----------|----------|----------|
+| Credentials  | Username for SSH connection to machines   | Yes, but can be left empty |
+| IPFS network | IPFS network configuration   | Yes   |
+| Nodes  | Number of nodes in the IPFS network, inside the IPFS network tag  | Yes   |
+| GCPeriod   | Garbage collection period for IPFS, inside the IPFS network tag  | No, will be set to default value if not given  |
+| MaxStorage  | MaxStorage on IPFS node, inside the IPFS network tag   | No, will be set to default value if not given   |
+| IPFS_Clusters   | IPFSCluster clusters you wish to set up  | No |
+
+Each IPFSCluster cluster must be declared in the IPFS_Clusters tag, each cluster should be named after a number as described, and for each cluster you can declare the exact same tags as you can describe in the IPFS_Network tag. 
+
+Your configuration should respect the following constraints : 
+- the number sum of nodes in all clusters should be inferior or equal to the total number of nodes in the IPFS network
+
 You'll need to provide a list of the IP addresses of the machines you have at your disposal, in the file ip_@.txt. For now, you need to make sure you have accepted their private key before otherwise the connection won't work. 
 
 Once all of this is configured, you'll need to launch inf_builder.py.
@@ -15,8 +49,11 @@ Once basic configurations are performed by the script, and if enough nodes are a
 
 Then, the system will begin setting up your network. Once it is done, start prometheus and setup a Grafana dashboard; you're good to go !
 
-The network can be killed through the network_killer.yaml playbook. 
+The network can be killed through the network_killer.yaml playbook :
 
+```
+ansible-playbook network_killer.yml -i hosts.ini --ask-pass
+```
 ## General architecture 
 
 This tool makes use of Ansible, a tool that allows for SSH connection automation. 
