@@ -2,15 +2,11 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 import os
 import time
 import psutil
-import sys
 
 # Define the port number to listen on
 PORT = 9100
-if len(sys.argv)!=2:
-    print("Needs folder as argument - exiting - error")
-    exit(-1)
 
-FOLDER = sys.argv(1)
+FOLDER = "./.ipfs"
 
 def getFolderSize(folder):
     total_size = os.path.getsize(folder)
@@ -26,8 +22,8 @@ def getFolderSize(folder):
 def is_process_running(process_name):
     for proc in psutil.process_iter(['name']):
         if proc.info['name'] == process_name:
-            return True
-    return False
+            return 1
+    return 0
 
 # Create a custom request handler by subclassing BaseHTTPRequestHandler
 class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
