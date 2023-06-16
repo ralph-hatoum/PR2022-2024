@@ -83,12 +83,17 @@ print("\nProvisioning nodes for IPFSClusters ...")
 
 with open("hosts.ini","a") as f:
     n = 0
+    p = 1
     for cluster in clusters_to_build:
-        f.write(f"[IPFSCluster{cluster}]\n")
-        for _ in range(int(cluster)):
-            f.write(f"{username}@{available_hosts[n]} label=node{n} label_ip={host}\n")
+        for node in range(int(cluster)):
+            if node == 0:
+                f.write(f"[IPFSCluster{p}_starter]\n")
+                f.write(f"{username}@{available_hosts[n]} label=node{n} label_ip={host}\n")
+                f.write(f"[IPFSCluster{p}]\n")
+            else:
+                f.write(f"{username}@{available_hosts[n]} label=node{n} label_ip={host}\n")
             n+=1
-
+        p+=1
 print("\nClusters nodes initialized !\nÒ")
 
 #TODO ADD SUPPORT FOR DIFFERENT CONFIG FOR EACH NODE
