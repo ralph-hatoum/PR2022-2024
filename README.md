@@ -4,30 +4,40 @@ The aim of this project is to provide a quick and efficient way to deploy a priv
 
 This project was developped as part of my test bench for my masters thesis about IPFS and local private clouds.
 
+## Quick start up
+
+You'll need to describe your network in a JSON file. You'll need to define a number of IPFS nodes. You can optionally define IPFSCluster clusters. An example of a configuration is in the file network_config.json
+
+You'll need to provide a list of the IP addresses of the machines you have at your disposal, in the file ip_@.txt. For now, you need to make sure you have accepted their private key before otherwise the connection won't work. 
+
+Once all of this is configured, you'll need to launch inf_builder.py.
+Once basic configurations are performed by the script, and if enough nodes are available to satisfy your network build request, Ansible will ask you for a password, which you'll need to provide. 
+
+Then, the system will begin setting up your network. Once it is done, start prometheus and setup a Grafana dashboard; you're good to go !
+
+The network can be killed through the network_killer.yaml playbook. 
 
 ## General architecture 
 
 This tool makes use of Ansible, a tool that allows for SSH connection automation. 
 
-Actions to be done are described in yaml files called playbooks. We use two playbooks.
+Actions to be done are described in yaml files called playbooks. We use two playbooks, one for setting up the network and one for killing the network.
 
-The first playbook will turn on the IPFS daemons, IPFSCluster daemons and data collectors on network nodes, as well as a node called _data-aggregator_. 
-The second playbook will turn off all daemons and data collectors. 
+The network is described in a JSON file. Then, a python script reads the configuration, makes sure it is valid (ie you aren't defining more nodes in clusters than there are nodes in the IPFS network for example). Once everything is validated, a python script will ping the ip addresses you've provided in the ip_@.txt file, and check which nodes are responsive. Once enough nodes have been found, the script fills up the hosts.inif file. This is a file used by ansible to know which actions to perform on which machines. 
+First, we write all the nodes found so IPFS can be set up on all these nodes.
+Then, if IPFSCluster clusters need to be setup, we define a group of nodes for each of the clusters, so we can do the required actions to build the cluster on these nodes.
+Once the hosts.ini file is ready, we also fill up a Prometheus configuration for data collection, but we'll touch on that in the following section.
+Then, we potentially modify the playbook to fit what is in the configuration. For instance, if we need to setup clusters, we need to setup particular actions for each clusters. 
 
-In this first version, we'll assume all needed files are already available on machines. The next version will focus on dynamically setting up the network on a given set of machines and installing all needed requirements, essentially allowing for infrasture as code like use. 
+Once that is done, we launch the playbook and let it do its work. 
 
 ### Data collection
 
-For data collection, each node running IPFS will have a python script responsible for assessing how much data is currently stored on the node. This python script runs a tcp server, listening to connections. The data-aggregator is a node that will periodically contact the nodes and ask for the data they have collected. While this choice might seem a bit unsettling, it is the best way I have found to collect data efficiently. Centralizing will also allow us to easily setup a grafana dashboard to visualize activity on the network (not available yet).
+For data collection, we use Prometheus, a tool that allows for efficient data retrieval. On each node, we set up an HTTP server on port 9100 (node_exporter.py). Each request on this server will return a text file, with each line giving us a metric about the node the server is running on. 
+Prometheus is set up through a yaml config file. We give it the ip addresses of the nodes, and the tool will periodically retrieve metrics for us. 
+Prometheus runs on the computer you are launching the network on, while the node_exporter servers run on the nodes of the network. This means your nodes need to be reachable by your computer in order for data collection to work. 
 
-## Quick start
+Prometheus will stream data to a pipeline, that we can connect to Grafana to have data visualization. In the grafan folder, you'll find a python script that will setup a basic dashboard for you. All you need is grafana to be running on your computer, and an API key to your grafana instance. 
 
-In the hosts.ini file, change the username in front of each machine address.
+Adding your own metrics if fairly straightforward. You'll need to write a python function that calculates the needed metric on the node, and add it to node_exporter.py. Then, you'll need to add it to the functions executed upon a request to the server, and add a line to the returned text, by following the format that is already written in the file. 
 
-You can start the IPFS network as you described it in the previous file with the command : 
-
-``` ansible-playbook playbook-u.yml -i hosts.ini --ask-pass ```
-
-To kill the network : 
-
-``` ansible-playbook playbook-d.yml -i hosts.ini --ask-pass ```
