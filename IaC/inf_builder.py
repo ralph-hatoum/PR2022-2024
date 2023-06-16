@@ -3,6 +3,8 @@ from pinger import ping_all_machines
 from prometheus_conf_writer import prometheus_conf_writer
 import os
 
+
+## TODO GENERATE SWARM KEY !!!
 with open("network_config_clusters.json","r") as f:
     config = json.load(f)
 
@@ -44,37 +46,36 @@ if len(available_hosts) < nodes_needed:
     print(f"\n\033[91mError : Not enough available nodes -- found {len(available_hosts)}, needed {nodes_needed} -- please change your configuration accordingly.\033[0m\n")
     exit(-1)
 else:
-    print(f"\nFound {nodes_needed} available nodes, network can be built ! \n")
+    print(f"\n\033[0;32mFound {nodes_needed} available nodes, network can be built ! \033[0m\n")
 
-#Elect bootstrap & data aggregator
+#Elect bootstrap
 #TODO add support for custom conf
 
 bootstrap_node = available_hosts[0]
 print(f"\nBootstrap chosen : {bootstrap_node}\n")
 
 
-#TODO EDIT PROMETHEUS.YML to retrieve ipfs up / down 
-
 # Edit prometheus.yml
 print("\nWriting Prometheus yaml file for data collection ...\n")
 prometheus_conf_writer(available_hosts, 9100, "./prometheus/prometheus.yml")
-print("\nPrometheus file succesfully written ! \n")
+print("\n\033[0;32mPrometheus file succesfully written ! \033[0m\n")
 
 available_hosts.remove(bootstrap_node)
 
-#TODO BUILD HOSTS.INI FILE AND LAUNCH PLAYBOOK
 
 print("Building hosts.ini file ...")
 
 with open("hosts.ini","w") as f:
     f.write(f"[Bootstrap-node]\n{username}@{bootstrap_node} label=bootstrap label_ip={bootstrap_node}\n")
+    f.write('\n')
     f.write(f"[IPFS-nodes]\n")
     n = 0
     for host in available_hosts:
         f.write(f"{username}@{host} label=node{n} label_ip={host}\n")
         n +=1 
+    f.write('\n')
 
-print("\nhosts.ini file successfully built!\n")
+print("\n\033[0;32mhosts.ini file successfully built!\033[0m\n")
     
 available_hosts.append(bootstrap_node)
 
@@ -88,13 +89,18 @@ with open("hosts.ini","a") as f:
         for node in range(int(cluster)):
             if node == 0:
                 f.write(f"[IPFSCluster{p}_starter]\n")
-                f.write(f"{username}@{available_hosts[n]} label=node{n} label_ip={host}\n")
+                f.write(f"{username}@{available_hosts[n]} label=node{n} label_ip={available_hosts[n]}\n")
+                f.write('\n')
                 f.write(f"[IPFSCluster{p}]\n")
             else:
-                f.write(f"{username}@{available_hosts[n]} label=node{n} label_ip={host}\n")
-            n+=1
+                f.write(f"{username}@{available_hosts[n]} label=node{n} label_ip={available_hosts[n]}\n")
+                n+=1
+        f.write('\n')
+            
         p+=1
-print("\nClusters nodes initialized !\nÒ")
+print("\n\033[0;32mClusters nodes initialized !\033[0m\n")
+
+#TODO modify playbook if needed
 
 #TODO ADD SUPPORT FOR DIFFERENT CONFIG FOR EACH NODE
 
