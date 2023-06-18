@@ -1,0 +1,42 @@
+- hosts: #IPFS CLUSTER STARTER
+  gather_facts: no
+  tasks:
+    - name: Make IPFSCluster service folder
+      shell: mkdir -p IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/ipfs-cluster-service
+
+    - name: Make IPFSCluster control folder
+      shell: mkdir -p IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/ipfs-cluster-ctl
+
+    - name: Copying IPFSCluster service binary
+      copy:
+        src: kubo/ipfs-cluster-service/ipfs-cluster-service
+        dest: IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/ipfs-cluster-service/ipfs-cluster-service
+
+    - name: Copying IPFSCluster ctl binary
+      copy:
+        src: kubo/ipfs-cluster-ctl/ipfs-cluster-ctl
+        dest: IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/ipfs-cluster-ctl/ipfs-cluster-ctl
+
+    - name: Authorize execution of IPFSCluster binary
+      shell: chmod u+x IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/ipfs-cluster-service/ipfs-cluster-service
+
+    - name: Initiliaze IPFSCluster
+      shell: IPFS_CLUSTER_PATH=IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/ipfs-cluster-service/.ipfs-cluster ./ipfs-cluster-service init --consensus crdt
+
+    - name: Start IPFSCluster
+      shell: IPFS_CLUSTER_PATH=IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/ipfs-cluster-service/.ipfs-cluster nohup IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/ipfs-cluster-service/ipfs-cluster-service daemon >/dev/null 2>&1 &
+
+    - name: Display peerID
+      shell: "IPFS_PATH=IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/.ipfs IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/ipfs config show | grep \"PeerID\" "
+      register: BootstrapID
+    
+    - name: Write output to local file
+      copy:
+        content: "{{ BootstrapID.stdout_lines }}"
+        dest: bootstrap_id.txt
+      delegate_to: localhost
+
+    - name: Format bootstrap ipfs ID
+      shell: python3 bootstrap_parser.py {{hostvars[inventory_hostname]['label_ip']}}
+      delegate_to: localhost
+

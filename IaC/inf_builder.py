@@ -1,6 +1,7 @@
 import json
 from pinger import ping_all_machines
 from prometheus_conf_writer import prometheus_conf_writer
+import yaml
 import os
 
 
@@ -80,25 +81,64 @@ print("\n\033[0;32mhosts.ini file successfully built!\033[0m\n")
 available_hosts.append(bootstrap_node)
 
 #TODO ADD SUPPORT FOR IPFS CLUSTERS
-print("\nProvisioning nodes for IPFSClusters ...")
 
-with open("hosts.ini","a") as f:
+if flag_clusters_to_build:
+    print("\nProvisioning nodes for IPFSClusters ...")
+
+    with open("hosts.ini","a") as f:
+        n = 0
+        p = 1
+        for cluster in clusters_to_build:
+            for node in range(int(cluster)):
+                if node == 0:
+                    f.write(f"[IPFSCluster{p}_starter]\n")
+                    f.write(f"{username}@{available_hosts[n]} label=node{n} label_ip={available_hosts[n]}\n")
+                    f.write('\n')
+                    f.write(f"[IPFSCluster{p}]\n")
+                else:
+                    f.write(f"{username}@{available_hosts[n]} label=node{n} label_ip={available_hosts[n]}\n")
+                    n+=1
+            f.write('\n')
+                
+            p+=1
+    print("\n\033[0;32mClusters nodes initialized !\033[0m\n")
+
+    print("\nModifying playbook accordingly ...")
+    
     n = 0
     p = 1
+
+    with open("playbook_backup.yml", "r") as f:
+        existing_data = yaml.safe_load(f)
+
+    print(existing_data)
+    print("LEngth : ", len(existing_data))
+    
     for cluster in clusters_to_build:
-        for node in range(int(cluster)):
-            if node == 0:
-                f.write(f"[IPFSCluster{p}_starter]\n")
-                f.write(f"{username}@{available_hosts[n]} label=node{n} label_ip={available_hosts[n]}\n")
-                f.write('\n')
-                f.write(f"[IPFSCluster{p}]\n")
-            else:
-                f.write(f"{username}@{available_hosts[n]} label=node{n} label_ip={available_hosts[n]}\n")
-                n+=1
-        f.write('\n')
-            
-        p+=1
-print("\n\033[0;32mClusters nodes initialized !\033[0m\n")
+        with open("cluster_playbooks/model_cluster_starter.yml","r") as f1:
+            starter_playbook_data = yaml.safe_load(f1)
+
+        #print("DEBUG :",starter_playbook_data[0])
+        starter_playbook_data[0]['hosts']=f"IPFSCluster{p}_starter"
+        #print("DEBUG :",starter_playbook_data[0])
+
+        with open("cluster_playbooks/model_cluster_nodes.yml","r") as f2:
+            nodes_playbook_data=yaml.safe_load(f2)
+
+        nodes_playbook_data[0]["hosts"]=f"IPFSCluster{p}"
+
+
+        existing_data.append(starter_playbook_data[0])
+        existing_data.append(nodes_playbook_data[0])
+        #print(existing_data)
+        p +=1
+    
+    print(existing_data)
+    with open("playbook.yml","w") as f:
+        yaml.dump(existing_data,f)
+
+        
+
 
 #TODO modify playbook if needed
 
