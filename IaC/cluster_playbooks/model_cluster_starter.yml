@@ -21,7 +21,7 @@
       shell: chmod u+x IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/ipfs-cluster-service/ipfs-cluster-service
 
     - name: Initiliaze IPFSCluster
-      shell: IPFS_CLUSTER_PATH=IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/ipfs-cluster-service/.ipfs-cluster ./ipfs-cluster-service init --consensus crdt
+      shell: IPFS_CLUSTER_PATH=IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/ipfs-cluster-service/.ipfs-cluster IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/ipfs-cluster-service/ipfs-cluster-service init --consensus crdt &
 
     - name: Start IPFSCluster
       shell: IPFS_CLUSTER_PATH=IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/ipfs-cluster-service/.ipfs-cluster nohup IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/ipfs-cluster-service/ipfs-cluster-service daemon >/dev/null 2>&1 &

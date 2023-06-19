@@ -80,7 +80,6 @@ print("\n\033[0;32mhosts.ini file successfully built!\033[0m\n")
     
 available_hosts.append(bootstrap_node)
 
-#TODO ADD SUPPORT FOR IPFS CLUSTERS
 
 if flag_clusters_to_build:
     print("\nProvisioning nodes for IPFSClusters ...")
@@ -94,7 +93,9 @@ if flag_clusters_to_build:
                     f.write(f"[IPFSCluster{p}_starter]\n")
                     f.write(f"{username}@{available_hosts[n]} label=node{n} label_ip={available_hosts[n]}\n")
                     f.write('\n')
-                    f.write(f"[IPFSCluster{p}]\n")
+                    if int(cluster)>1:
+                        f.write(f"[IPFSCluster{p}]\n")
+                    n+=1
                 else:
                     f.write(f"{username}@{available_hosts[n]} label=node{n} label_ip={available_hosts[n]}\n")
                     n+=1
@@ -111,8 +112,7 @@ if flag_clusters_to_build:
     with open("playbook_backup.yml", "r") as f:
         existing_data = yaml.safe_load(f)
 
-    print(existing_data)
-    print("LEngth : ", len(existing_data))
+
     
     for cluster in clusters_to_build:
         with open("cluster_playbooks/model_cluster_starter.yml","r") as f1:
@@ -130,22 +130,19 @@ if flag_clusters_to_build:
 
         existing_data.append(starter_playbook_data[0])
         existing_data.append(nodes_playbook_data[0])
-        #print(existing_data)
+        
         p +=1
     
-    print(existing_data)
+   
     with open("playbook.yml","w") as f:
         yaml.dump(existing_data,f)
 
         
 
-
-#TODO modify playbook if needed
-
 #TODO ADD SUPPORT FOR DIFFERENT CONFIG FOR EACH NODE
 
-# print("\nLaunching playbook ...")
+print("\nLaunching playbook ...")
 
 
-# os.system("ansible-playbook playbook.yml -i hosts.ini --ask-pass")
+os.system("ansible-playbook playbook.yml -i hosts.ini --ask-pass")
 

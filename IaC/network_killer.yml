@@ -19,7 +19,10 @@
       register: command_output
       ignore_errors: true
     - name: Kill data collectors
-      shell: fuser -k 62000/tcp
+      shell: fuser -k 9100/tcp
+      ignore_errors: true
+    - name: Kill IPFSCluster
+      shell: killall ipfs-cluster-service
       ignore_errors: true
     - name: Display outputs
       debug: var=command_output.stdout_lines
@@ -31,8 +34,11 @@
       shell: killall ipfs
       register: command_output
       ignore_errors: true
+    - name: Kill IPFSCluster
+      shell: killall ipfs-cluster-service
+      ignore_errors: true
     - name: Kill data collectors
-      shell: fuser -k 62000/tcp
+      shell: fuser -k 9100/tcp
       ignore_errors: true
     - name: Display outputs
       debug: var=command_output.stdout_lines
