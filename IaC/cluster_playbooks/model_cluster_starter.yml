@@ -29,11 +29,21 @@
     - name: Display peerID
       shell: "IPFS_PATH=IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/.ipfs IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/ipfs config show | grep \"PeerID\" "
       register: BootstrapID
+
+    - name: Display cluster secret
+      shell: cat IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/ipfs-cluster-service/.ipfs-cluster/service.json | grep secret
+      register: cluster_secret
     
-    - name: Write output to local file
+    - name: Write peerID output to local file
       copy:
         content: "{{ BootstrapID.stdout_lines }}"
         dest: bootstrap_id.txt
+      delegate_to: localhost
+    
+    - name: write cluster secret output to local file
+      copy: 
+        content: "{{ cluster_secret.stdout_lines }}"
+        dest: cluster_secret.txt
       delegate_to: localhost
 
     - name: Format bootstrap ipfs ID
