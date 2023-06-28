@@ -14,5 +14,5 @@ with open(file_path,"r") as f:
 data["cluster"]["secret"]=secret
 
 with open(file_path,"w") as f:
-    json.dump(f,data)
+    json.dump(data,f)
 

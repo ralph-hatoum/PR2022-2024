@@ -166,12 +166,12 @@
     shell: echo "{{ bootstrap_id }}" > IPFS_nodes/{{ hostvars[inventory_hostname]['label']
       }}/ipfs-cluster-service/.ipfs-cluster/peerstore
   - copy:
-      dest: IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/ipfs-cluster-service/.ipfs-cluter/cluster_secret_adder.py
+      dest: IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/ipfs-cluster-service/.ipfs-cluster/cluster_secret_adder.py
       src: kubo/cluster_secret_adder.py
     name: Copy python script for secret edition
   - name: Change cluster secret
-    shell: python IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/ipfs-cluster-service/.ipfs-cluter/cluster_secret_adder.py
-      {{ cluster_secret }}
+    shell: python IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/ipfs-cluster-service/.ipfs-cluster/cluster_secret_adder.py
+      {{ cluster_secret }} IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/ipfs-cluster-service/.ipfs-cluster/service.json
   - name: Start IPFSCluster
     shell: IPFS_CLUSTER_PATH=IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/ipfs-cluster-service/.ipfs-cluster
       nohup IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/ipfs-cluster-service/ipfs-cluster-service
