@@ -1,0 +1,1 @@
+ansible-playbook playbooks/network_killer.yml -i hosts/hosts.ini --ask-pass
