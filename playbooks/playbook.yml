@@ -45,8 +45,7 @@
       --enable-gc >/dev/null 2>&1 &
   - name: Start prometheus node exporter
     shell: nohup python3 IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/node_exporter.py
-      IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/.ipfs >/dev/null
-      2>&1 &
+      {{ hostvars[inventory_hostname]['label'] }} >/dev/null 2>&1 &
 - gather_facts: false
   hosts: IPFS-nodes
   tasks:
@@ -83,8 +82,7 @@
       --enable-gc >/dev/null 2>&1 &
   - name: Start prometheus node exporter
     shell: nohup python3 IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/node_exporter.py
-      IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/.ipfs >/dev/null
-      2>&1 &
+      {{ hostvars[inventory_hostname]['label'] }} >/dev/null 2>&1 &
   vars:
     bootstrap_id: '{{lookup(''file'',''id_secret/bootstrap_id.txt'')}}'
 - gather_facts: false
@@ -156,12 +154,14 @@
       dest: IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/ipfs-cluster-ctl/ipfs-cluster-ctl
       src: kubo/ipfs-cluster-ctl/ipfs-cluster-ctl
     name: Copying IPFSCluster ctl binary
+  - name: Authorize execution of IPFSCluster ctl binary
+    shell: chmod u+x IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/ipfs-cluster-ctl/ipfs-cluster-ctl
   - name: Authorize execution of IPFSCluster binary
     shell: chmod u+x IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/ipfs-cluster-service/ipfs-cluster-service
   - name: Initiliaze IPFSCluster
     shell: IPFS_CLUSTER_PATH=IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/ipfs-cluster-service/.ipfs-cluster
       IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/ipfs-cluster-service/ipfs-cluster-service
-      init --consensus crdt &
+      init --consensus crdt
   - name: Add bootstrap to peerstore
     shell: echo "{{ bootstrap_id }}" > IPFS_nodes/{{ hostvars[inventory_hostname]['label']
       }}/ipfs-cluster-service/.ipfs-cluster/peerstore
@@ -169,8 +169,10 @@
       dest: IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/ipfs-cluster-service/.ipfs-cluster/cluster_secret_adder.py
       src: kubo/cluster_secret_adder.py
     name: Copy python script for secret edition
+  - name: authorize execution of python secret adder
+    shell: chmod u+x IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/ipfs-cluster-service/.ipfs-cluster/cluster_secret_adder.py
   - name: Change cluster secret
-    shell: python IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/ipfs-cluster-service/.ipfs-cluster/cluster_secret_adder.py
+    shell: python3 IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/ipfs-cluster-service/.ipfs-cluster/cluster_secret_adder.py
       {{ cluster_secret }} IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/ipfs-cluster-service/.ipfs-cluster/service.json
   - name: Start IPFSCluster
     shell: IPFS_CLUSTER_PATH=IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/ipfs-cluster-service/.ipfs-cluster

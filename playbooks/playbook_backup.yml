@@ -65,7 +65,7 @@
       shell: "IPFS_PATH=IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/.ipfs nohup IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/ipfs daemon --enable-gc >/dev/null 2>&1 &"
     
     - name: Start prometheus node exporter
-      shell: nohup python3 IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/node_exporter.py IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/.ipfs >/dev/null 2>&1 &
+      shell: nohup python3 IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/node_exporter.py {{ hostvars[inventory_hostname]['label'] }} >/dev/null 2>&1 &
 
 
 
@@ -119,7 +119,7 @@
     #   shell: nohup python3 IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/data-collection-node.py {{ hostvars[inventory_hostname]['label_ip'] }} >/dev/null 2>&1 &
 
     - name: Start prometheus node exporter
-      shell: nohup python3 IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/node_exporter.py IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/.ipfs >/dev/null 2>&1 &
+      shell: nohup python3 IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/node_exporter.py {{ hostvars[inventory_hostname]['label'] }} >/dev/null 2>&1 &
 
 - hosts: IPFScluster-nodes
   gather_facts: no
