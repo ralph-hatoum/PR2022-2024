@@ -5,7 +5,8 @@ LINE_FORMAT= ""
 with open("measure.txt","r") as f:
     lines = f.readlines()
 
-data = lines[3][4:]
+
+data=(lines[0].split(",")[4]+","+lines[0].split(",")[5])[8:-1]
 
 # We now have data in format X minutes X seconds; lets conver it all in seconds
 
