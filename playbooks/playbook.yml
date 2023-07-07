@@ -39,6 +39,12 @@
   - delegate_to: localhost
     name: Format bootstrap ipfs ID
     shell: python3 bootstrap_parser.py {{hostvars[inventory_hostname]['label_ip']}}
+  - expect:
+      command: rm -f IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/.ipfs/blocks/_README
+      responses:
+        Question:
+        - y
+    name: Delete README file that is protected in writing
   - name: Start IPFS dameons
     shell: IPFS_PATH=IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/.ipfs
       nohup IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/ipfs daemon
@@ -76,6 +82,12 @@
     shell: IPFS_PATH=IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/.ipfs
       IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/ipfs bootstrap add
       {{ bootstrap_id }}
+  - expect:
+      command: rm -f IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/.ipfs/blocks/_README
+      responses:
+        Question:
+        - y
+    name: Delete README file that is protected in writing
   - name: Start IPFS dameons
     shell: IPFS_PATH=IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/.ipfs
       nohup IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/ipfs daemon
