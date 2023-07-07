@@ -53,6 +53,12 @@
     - name: Display outputs
       debug: var=command_output.stdout_lines
 
+- hosts: Bootstrap-node
+  gather_facts: no
+  tasks:
+    - name: Delete folders
+      shell: rm -R /home/rhatoum/IPFS_nodes
+
 - hosts: datacollector
   gather_facts: no
   tasks:
