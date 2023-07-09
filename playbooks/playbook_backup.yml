@@ -60,6 +60,13 @@
     - name: Format bootstrap ipfs ID
       shell: python3 bootstrap_parser.py {{hostvars[inventory_hostname]['label_ip']}}
       delegate_to: localhost
+
+    - name: Delete README file that is protected in writing
+      expect:
+        command: rm -f IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/.ipfs/blocks/_README
+        responses:
+          Question:
+            - 'y'
     
     - name: Start IPFS dameons
       shell: "IPFS_PATH=IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/.ipfs nohup IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/ipfs daemon --enable-gc >/dev/null 2>&1 &"
@@ -113,6 +120,13 @@
     - name: Add bootstrap node
       shell: "IPFS_PATH=IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/.ipfs IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/ipfs bootstrap add {{ bootstrap_id }}"
     
+    - name: Delete README file that is protected in writing
+      expect:
+        command: rm -f IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/.ipfs/blocks/_README
+        responses:
+          Question:
+            - 'y'
+
     - name: Start IPFS dameons
       shell: "IPFS_PATH=IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/.ipfs nohup IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/ipfs daemon --enable-gc >/dev/null 2>&1 &"
     # - name: Start data collector 
@@ -126,4 +140,3 @@
   tasks:
     - name : Start IPFSCluster daemons
       shell: IPFS_CLUSTER_PATH=IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/ipfs-cluster-service/.ipfs-cluster nohup IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/ipfs-cluster-service/ipfs-cluster-service daemon >/dev/null 2>&1 &
-

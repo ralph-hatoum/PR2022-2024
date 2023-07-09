@@ -1,0 +1,1074 @@
+ 
+- hosts: ClusterBootstrap
+  gather_facts: no
+  tasks:
+    - name: Retrieve a piece of data to post on network
+      copy:
+        src: data.pdf
+        dest: IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/data.pdf
+    
+    - name: Upload data on IPFS network and retrieve its CID
+      shell: IPFS_PATH=IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/.ipfs IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/ipfs add IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/data.pdf
+      register: CID 
+
+    - name: Write CID to local file
+      copy:
+        content: "{{CID.stdout_lines}}"
+        dest: CID.txt
+      delegate_to: localhost
+
+    - name: Format result of previous command to get CID
+      shell: python3 CID_formater.py
+      delegate_to: localhost
+
+    - name: Write result of previous python script to ansible variable
+      set_fact:
+        CID: "{{lookup('file','CID_formatted.txt')}}"
+
+    - name: make sure ipfs-cluster-ctl is executable (other playbook should have done it but we never know)
+      shell: chmod u+x IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/ipfs-cluster-ctl/ipfs-cluster-ctl
+
+    - name: pin data on cluster
+      shell: IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/ipfs-cluster-ctl/ipfs-cluster-ctl pin add "{{ CID }}"
+
+
+
+- hosts: Node
+  gather_facts: no
+  vars:
+    CID: "{{lookup('file','CID_formatted.txt')}}"
+  tasks: 
+    - name: Retrieve data through CID on the IPFS network, and time it
+      ansible.builtin.shell: "{ time IPFS_PATH=IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/.ipfs IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/ipfs get {{ CID }} ; } 2> IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/output.txt "
+      args:
+        executable: /bin/bash
+      
+
+    - name: Retrieve outpout of previous command
+      shell: cat IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/output.txt
+      register: measure
+
+    - name: Write result to local file
+      copy: 
+        content: "{{ measure.stdout_lines }}"
+        dest: measure.txt
+      delegate_to: localhost
+    
+    - name: Run local python to deal w new measure
+      shell: python3 measure_formater.py
+      delegate_to: localhost
+
+    - name: Force garbage collection on node to delete the file we just retrieved so we can make new measurement
+      shell: IPFS_PATH=IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/.ipfs IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/ipfs repo gc
+
+
+- hosts: Node
+  gather_facts: no
+  vars:
+    CID: "{{lookup('file','CID_formatted.txt')}}"
+  tasks: 
+    - name: Retrieve data through CID on the IPFS network, and time it
+      ansible.builtin.shell: "{ time IPFS_PATH=IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/.ipfs IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/ipfs get {{ CID }} ; } 2> IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/output.txt "
+      args:
+        executable: /bin/bash
+      
+
+    - name: Retrieve outpout of previous command
+      shell: cat IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/output.txt
+      register: measure
+
+    - name: Write result to local file
+      copy: 
+        content: "{{ measure.stdout_lines }}"
+        dest: measure.txt
+      delegate_to: localhost
+    
+    - name: Run local python to deal w new measure
+      shell: python3 measure_formater.py
+      delegate_to: localhost
+
+    - name: Force garbage collection on node to delete the file we just retrieved so we can make new measurement
+      shell: IPFS_PATH=IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/.ipfs IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/ipfs repo gc
+
+
+- hosts: Node
+  gather_facts: no
+  vars:
+    CID: "{{lookup('file','CID_formatted.txt')}}"
+  tasks: 
+    - name: Retrieve data through CID on the IPFS network, and time it
+      ansible.builtin.shell: "{ time IPFS_PATH=IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/.ipfs IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/ipfs get {{ CID }} ; } 2> IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/output.txt "
+      args:
+        executable: /bin/bash
+      
+
+    - name: Retrieve outpout of previous command
+      shell: cat IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/output.txt
+      register: measure
+
+    - name: Write result to local file
+      copy: 
+        content: "{{ measure.stdout_lines }}"
+        dest: measure.txt
+      delegate_to: localhost
+    
+    - name: Run local python to deal w new measure
+      shell: python3 measure_formater.py
+      delegate_to: localhost
+
+    - name: Force garbage collection on node to delete the file we just retrieved so we can make new measurement
+      shell: IPFS_PATH=IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/.ipfs IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/ipfs repo gc
+
+
+- hosts: Node
+  gather_facts: no
+  vars:
+    CID: "{{lookup('file','CID_formatted.txt')}}"
+  tasks: 
+    - name: Retrieve data through CID on the IPFS network, and time it
+      ansible.builtin.shell: "{ time IPFS_PATH=IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/.ipfs IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/ipfs get {{ CID }} ; } 2> IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/output.txt "
+      args:
+        executable: /bin/bash
+      
+
+    - name: Retrieve outpout of previous command
+      shell: cat IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/output.txt
+      register: measure
+
+    - name: Write result to local file
+      copy: 
+        content: "{{ measure.stdout_lines }}"
+        dest: measure.txt
+      delegate_to: localhost
+    
+    - name: Run local python to deal w new measure
+      shell: python3 measure_formater.py
+      delegate_to: localhost
+
+    - name: Force garbage collection on node to delete the file we just retrieved so we can make new measurement
+      shell: IPFS_PATH=IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/.ipfs IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/ipfs repo gc
+
+
+- hosts: Node
+  gather_facts: no
+  vars:
+    CID: "{{lookup('file','CID_formatted.txt')}}"
+  tasks: 
+    - name: Retrieve data through CID on the IPFS network, and time it
+      ansible.builtin.shell: "{ time IPFS_PATH=IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/.ipfs IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/ipfs get {{ CID }} ; } 2> IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/output.txt "
+      args:
+        executable: /bin/bash
+      
+
+    - name: Retrieve outpout of previous command
+      shell: cat IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/output.txt
+      register: measure
+
+    - name: Write result to local file
+      copy: 
+        content: "{{ measure.stdout_lines }}"
+        dest: measure.txt
+      delegate_to: localhost
+    
+    - name: Run local python to deal w new measure
+      shell: python3 measure_formater.py
+      delegate_to: localhost
+
+    - name: Force garbage collection on node to delete the file we just retrieved so we can make new measurement
+      shell: IPFS_PATH=IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/.ipfs IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/ipfs repo gc
+
+
+- hosts: Node
+  gather_facts: no
+  vars:
+    CID: "{{lookup('file','CID_formatted.txt')}}"
+  tasks: 
+    - name: Retrieve data through CID on the IPFS network, and time it
+      ansible.builtin.shell: "{ time IPFS_PATH=IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/.ipfs IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/ipfs get {{ CID }} ; } 2> IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/output.txt "
+      args:
+        executable: /bin/bash
+      
+
+    - name: Retrieve outpout of previous command
+      shell: cat IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/output.txt
+      register: measure
+
+    - name: Write result to local file
+      copy: 
+        content: "{{ measure.stdout_lines }}"
+        dest: measure.txt
+      delegate_to: localhost
+    
+    - name: Run local python to deal w new measure
+      shell: python3 measure_formater.py
+      delegate_to: localhost
+
+    - name: Force garbage collection on node to delete the file we just retrieved so we can make new measurement
+      shell: IPFS_PATH=IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/.ipfs IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/ipfs repo gc
+
+
+- hosts: Node
+  gather_facts: no
+  vars:
+    CID: "{{lookup('file','CID_formatted.txt')}}"
+  tasks: 
+    - name: Retrieve data through CID on the IPFS network, and time it
+      ansible.builtin.shell: "{ time IPFS_PATH=IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/.ipfs IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/ipfs get {{ CID }} ; } 2> IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/output.txt "
+      args:
+        executable: /bin/bash
+      
+
+    - name: Retrieve outpout of previous command
+      shell: cat IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/output.txt
+      register: measure
+
+    - name: Write result to local file
+      copy: 
+        content: "{{ measure.stdout_lines }}"
+        dest: measure.txt
+      delegate_to: localhost
+    
+    - name: Run local python to deal w new measure
+      shell: python3 measure_formater.py
+      delegate_to: localhost
+
+    - name: Force garbage collection on node to delete the file we just retrieved so we can make new measurement
+      shell: IPFS_PATH=IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/.ipfs IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/ipfs repo gc
+
+
+- hosts: Node
+  gather_facts: no
+  vars:
+    CID: "{{lookup('file','CID_formatted.txt')}}"
+  tasks: 
+    - name: Retrieve data through CID on the IPFS network, and time it
+      ansible.builtin.shell: "{ time IPFS_PATH=IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/.ipfs IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/ipfs get {{ CID }} ; } 2> IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/output.txt "
+      args:
+        executable: /bin/bash
+      
+
+    - name: Retrieve outpout of previous command
+      shell: cat IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/output.txt
+      register: measure
+
+    - name: Write result to local file
+      copy: 
+        content: "{{ measure.stdout_lines }}"
+        dest: measure.txt
+      delegate_to: localhost
+    
+    - name: Run local python to deal w new measure
+      shell: python3 measure_formater.py
+      delegate_to: localhost
+
+    - name: Force garbage collection on node to delete the file we just retrieved so we can make new measurement
+      shell: IPFS_PATH=IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/.ipfs IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/ipfs repo gc
+
+
+- hosts: Node
+  gather_facts: no
+  vars:
+    CID: "{{lookup('file','CID_formatted.txt')}}"
+  tasks: 
+    - name: Retrieve data through CID on the IPFS network, and time it
+      ansible.builtin.shell: "{ time IPFS_PATH=IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/.ipfs IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/ipfs get {{ CID }} ; } 2> IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/output.txt "
+      args:
+        executable: /bin/bash
+      
+
+    - name: Retrieve outpout of previous command
+      shell: cat IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/output.txt
+      register: measure
+
+    - name: Write result to local file
+      copy: 
+        content: "{{ measure.stdout_lines }}"
+        dest: measure.txt
+      delegate_to: localhost
+    
+    - name: Run local python to deal w new measure
+      shell: python3 measure_formater.py
+      delegate_to: localhost
+
+    - name: Force garbage collection on node to delete the file we just retrieved so we can make new measurement
+      shell: IPFS_PATH=IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/.ipfs IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/ipfs repo gc
+
+
+- hosts: Node
+  gather_facts: no
+  vars:
+    CID: "{{lookup('file','CID_formatted.txt')}}"
+  tasks: 
+    - name: Retrieve data through CID on the IPFS network, and time it
+      ansible.builtin.shell: "{ time IPFS_PATH=IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/.ipfs IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/ipfs get {{ CID }} ; } 2> IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/output.txt "
+      args:
+        executable: /bin/bash
+      
+
+    - name: Retrieve outpout of previous command
+      shell: cat IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/output.txt
+      register: measure
+
+    - name: Write result to local file
+      copy: 
+        content: "{{ measure.stdout_lines }}"
+        dest: measure.txt
+      delegate_to: localhost
+    
+    - name: Run local python to deal w new measure
+      shell: python3 measure_formater.py
+      delegate_to: localhost
+
+    - name: Force garbage collection on node to delete the file we just retrieved so we can make new measurement
+      shell: IPFS_PATH=IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/.ipfs IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/ipfs repo gc
+
+
+- hosts: ClusterNode1
+  gather_facts: no
+  vars: 
+      bootstrap_id: "{{lookup('file','playbooks/id_secret/bootstrap_id.txt')}}"
+      cluster_secret: "{{lookup('file', 'playbooks/id_secret/cluster_secret.txt')}}"
+  
+  tasks:
+    - name: Make IPFSCluster folder
+      shell: mkdir -p IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/ipfs-cluster-service
+
+    - name: Make IPFSCluster control folder
+      shell: mkdir -p IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/ipfs-cluster-ctl
+
+    - name: Copying IPFSCluster service binary
+      copy:
+        src: playbooks/kubo/ipfs-cluster-service/ipfs-cluster-service
+        dest: IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/ipfs-cluster-service/ipfs-cluster-service
+
+    - name: Copying IPFSCluster ctl binary
+      copy:
+        src: playbooks/kubo/ipfs-cluster-ctl/ipfs-cluster-ctl
+        dest: IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/ipfs-cluster-ctl/ipfs-cluster-ctl
+
+    - name: Authorize execution of IPFSCluster ctl binary
+      shell: chmod u+x IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/ipfs-cluster-ctl/ipfs-cluster-ctl
+
+    - name: Authorize execution of IPFSCluster binary
+      shell: chmod u+x IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/ipfs-cluster-service/ipfs-cluster-service
+
+    - name: Initiliaze IPFSCluster
+      shell: IPFS_CLUSTER_PATH=IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/ipfs-cluster-service/.ipfs-cluster IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/ipfs-cluster-service/ipfs-cluster-service init --consensus crdt 
+
+    - name: Add bootstrap to peerstore
+      shell: echo "{{ bootstrap_id }}" > IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/ipfs-cluster-service/.ipfs-cluster/peerstore
+
+    - name: Copy python script for secret edition
+      copy:
+        src: playbooks/kubo/cluster_secret_adder.py
+        dest: IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/ipfs-cluster-service/.ipfs-cluster/cluster_secret_adder.py
+
+    - name: authorize execution of python secret adder
+      shell: chmod u+x IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/ipfs-cluster-service/.ipfs-cluster/cluster_secret_adder.py
+
+    - name: Change cluster secret
+      shell: python3 IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/ipfs-cluster-service/.ipfs-cluster/cluster_secret_adder.py {{ cluster_secret }} IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/ipfs-cluster-service/.ipfs-cluster/service.json
+
+    - name: Start IPFSCluster
+      shell: IPFS_CLUSTER_PATH=IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/ipfs-cluster-service/.ipfs-cluster nohup IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/ipfs-cluster-service/ipfs-cluster-service daemon >/dev/null 2>&1 &
+
+    
+ 
+- hosts: ClusterBootstrap
+  gather_facts: no
+  tasks:
+    - name: Retrieve a piece of data to post on network
+      copy:
+        src: data.pdf
+        dest: IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/data.pdf
+    
+    - name: Upload data on IPFS network and retrieve its CID
+      shell: IPFS_PATH=IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/.ipfs IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/ipfs add IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/data.pdf
+      register: CID 
+
+    - name: Write CID to local file
+      copy:
+        content: "{{CID.stdout_lines}}"
+        dest: CID.txt
+      delegate_to: localhost
+
+    - name: Format result of previous command to get CID
+      shell: python3 CID_formater.py
+      delegate_to: localhost
+
+    - name: Write result of previous python script to ansible variable
+      set_fact:
+        CID: "{{lookup('file','CID_formatted.txt')}}"
+
+    - name: make sure ipfs-cluster-ctl is executable (other playbook should have done it but we never know)
+      shell: chmod u+x IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/ipfs-cluster-ctl/ipfs-cluster-ctl
+
+    - name: pin data on cluster
+      shell: IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/ipfs-cluster-ctl/ipfs-cluster-ctl pin add "{{ CID }}"
+
+
+
+- hosts: Node
+  gather_facts: no
+  vars:
+    CID: "{{lookup('file','CID_formatted.txt')}}"
+  tasks: 
+    - name: Retrieve data through CID on the IPFS network, and time it
+      ansible.builtin.shell: "{ time IPFS_PATH=IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/.ipfs IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/ipfs get {{ CID }} ; } 2> IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/output.txt "
+      args:
+        executable: /bin/bash
+      
+
+    - name: Retrieve outpout of previous command
+      shell: cat IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/output.txt
+      register: measure
+
+    - name: Write result to local file
+      copy: 
+        content: "{{ measure.stdout_lines }}"
+        dest: measure.txt
+      delegate_to: localhost
+    
+    - name: Run local python to deal w new measure
+      shell: python3 measure_formater.py
+      delegate_to: localhost
+
+    - name: Force garbage collection on node to delete the file we just retrieved so we can make new measurement
+      shell: IPFS_PATH=IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/.ipfs IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/ipfs repo gc
+
+
+- hosts: Node
+  gather_facts: no
+  vars:
+    CID: "{{lookup('file','CID_formatted.txt')}}"
+  tasks: 
+    - name: Retrieve data through CID on the IPFS network, and time it
+      ansible.builtin.shell: "{ time IPFS_PATH=IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/.ipfs IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/ipfs get {{ CID }} ; } 2> IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/output.txt "
+      args:
+        executable: /bin/bash
+      
+
+    - name: Retrieve outpout of previous command
+      shell: cat IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/output.txt
+      register: measure
+
+    - name: Write result to local file
+      copy: 
+        content: "{{ measure.stdout_lines }}"
+        dest: measure.txt
+      delegate_to: localhost
+    
+    - name: Run local python to deal w new measure
+      shell: python3 measure_formater.py
+      delegate_to: localhost
+
+    - name: Force garbage collection on node to delete the file we just retrieved so we can make new measurement
+      shell: IPFS_PATH=IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/.ipfs IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/ipfs repo gc
+
+
+- hosts: Node
+  gather_facts: no
+  vars:
+    CID: "{{lookup('file','CID_formatted.txt')}}"
+  tasks: 
+    - name: Retrieve data through CID on the IPFS network, and time it
+      ansible.builtin.shell: "{ time IPFS_PATH=IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/.ipfs IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/ipfs get {{ CID }} ; } 2> IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/output.txt "
+      args:
+        executable: /bin/bash
+      
+
+    - name: Retrieve outpout of previous command
+      shell: cat IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/output.txt
+      register: measure
+
+    - name: Write result to local file
+      copy: 
+        content: "{{ measure.stdout_lines }}"
+        dest: measure.txt
+      delegate_to: localhost
+    
+    - name: Run local python to deal w new measure
+      shell: python3 measure_formater.py
+      delegate_to: localhost
+
+    - name: Force garbage collection on node to delete the file we just retrieved so we can make new measurement
+      shell: IPFS_PATH=IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/.ipfs IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/ipfs repo gc
+
+
+- hosts: Node
+  gather_facts: no
+  vars:
+    CID: "{{lookup('file','CID_formatted.txt')}}"
+  tasks: 
+    - name: Retrieve data through CID on the IPFS network, and time it
+      ansible.builtin.shell: "{ time IPFS_PATH=IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/.ipfs IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/ipfs get {{ CID }} ; } 2> IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/output.txt "
+      args:
+        executable: /bin/bash
+      
+
+    - name: Retrieve outpout of previous command
+      shell: cat IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/output.txt
+      register: measure
+
+    - name: Write result to local file
+      copy: 
+        content: "{{ measure.stdout_lines }}"
+        dest: measure.txt
+      delegate_to: localhost
+    
+    - name: Run local python to deal w new measure
+      shell: python3 measure_formater.py
+      delegate_to: localhost
+
+    - name: Force garbage collection on node to delete the file we just retrieved so we can make new measurement
+      shell: IPFS_PATH=IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/.ipfs IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/ipfs repo gc
+
+
+- hosts: Node
+  gather_facts: no
+  vars:
+    CID: "{{lookup('file','CID_formatted.txt')}}"
+  tasks: 
+    - name: Retrieve data through CID on the IPFS network, and time it
+      ansible.builtin.shell: "{ time IPFS_PATH=IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/.ipfs IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/ipfs get {{ CID }} ; } 2> IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/output.txt "
+      args:
+        executable: /bin/bash
+      
+
+    - name: Retrieve outpout of previous command
+      shell: cat IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/output.txt
+      register: measure
+
+    - name: Write result to local file
+      copy: 
+        content: "{{ measure.stdout_lines }}"
+        dest: measure.txt
+      delegate_to: localhost
+    
+    - name: Run local python to deal w new measure
+      shell: python3 measure_formater.py
+      delegate_to: localhost
+
+    - name: Force garbage collection on node to delete the file we just retrieved so we can make new measurement
+      shell: IPFS_PATH=IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/.ipfs IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/ipfs repo gc
+
+
+- hosts: Node
+  gather_facts: no
+  vars:
+    CID: "{{lookup('file','CID_formatted.txt')}}"
+  tasks: 
+    - name: Retrieve data through CID on the IPFS network, and time it
+      ansible.builtin.shell: "{ time IPFS_PATH=IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/.ipfs IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/ipfs get {{ CID }} ; } 2> IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/output.txt "
+      args:
+        executable: /bin/bash
+      
+
+    - name: Retrieve outpout of previous command
+      shell: cat IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/output.txt
+      register: measure
+
+    - name: Write result to local file
+      copy: 
+        content: "{{ measure.stdout_lines }}"
+        dest: measure.txt
+      delegate_to: localhost
+    
+    - name: Run local python to deal w new measure
+      shell: python3 measure_formater.py
+      delegate_to: localhost
+
+    - name: Force garbage collection on node to delete the file we just retrieved so we can make new measurement
+      shell: IPFS_PATH=IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/.ipfs IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/ipfs repo gc
+
+
+- hosts: Node
+  gather_facts: no
+  vars:
+    CID: "{{lookup('file','CID_formatted.txt')}}"
+  tasks: 
+    - name: Retrieve data through CID on the IPFS network, and time it
+      ansible.builtin.shell: "{ time IPFS_PATH=IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/.ipfs IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/ipfs get {{ CID }} ; } 2> IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/output.txt "
+      args:
+        executable: /bin/bash
+      
+
+    - name: Retrieve outpout of previous command
+      shell: cat IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/output.txt
+      register: measure
+
+    - name: Write result to local file
+      copy: 
+        content: "{{ measure.stdout_lines }}"
+        dest: measure.txt
+      delegate_to: localhost
+    
+    - name: Run local python to deal w new measure
+      shell: python3 measure_formater.py
+      delegate_to: localhost
+
+    - name: Force garbage collection on node to delete the file we just retrieved so we can make new measurement
+      shell: IPFS_PATH=IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/.ipfs IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/ipfs repo gc
+
+
+- hosts: Node
+  gather_facts: no
+  vars:
+    CID: "{{lookup('file','CID_formatted.txt')}}"
+  tasks: 
+    - name: Retrieve data through CID on the IPFS network, and time it
+      ansible.builtin.shell: "{ time IPFS_PATH=IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/.ipfs IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/ipfs get {{ CID }} ; } 2> IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/output.txt "
+      args:
+        executable: /bin/bash
+      
+
+    - name: Retrieve outpout of previous command
+      shell: cat IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/output.txt
+      register: measure
+
+    - name: Write result to local file
+      copy: 
+        content: "{{ measure.stdout_lines }}"
+        dest: measure.txt
+      delegate_to: localhost
+    
+    - name: Run local python to deal w new measure
+      shell: python3 measure_formater.py
+      delegate_to: localhost
+
+    - name: Force garbage collection on node to delete the file we just retrieved so we can make new measurement
+      shell: IPFS_PATH=IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/.ipfs IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/ipfs repo gc
+
+
+- hosts: Node
+  gather_facts: no
+  vars:
+    CID: "{{lookup('file','CID_formatted.txt')}}"
+  tasks: 
+    - name: Retrieve data through CID on the IPFS network, and time it
+      ansible.builtin.shell: "{ time IPFS_PATH=IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/.ipfs IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/ipfs get {{ CID }} ; } 2> IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/output.txt "
+      args:
+        executable: /bin/bash
+      
+
+    - name: Retrieve outpout of previous command
+      shell: cat IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/output.txt
+      register: measure
+
+    - name: Write result to local file
+      copy: 
+        content: "{{ measure.stdout_lines }}"
+        dest: measure.txt
+      delegate_to: localhost
+    
+    - name: Run local python to deal w new measure
+      shell: python3 measure_formater.py
+      delegate_to: localhost
+
+    - name: Force garbage collection on node to delete the file we just retrieved so we can make new measurement
+      shell: IPFS_PATH=IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/.ipfs IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/ipfs repo gc
+
+
+- hosts: Node
+  gather_facts: no
+  vars:
+    CID: "{{lookup('file','CID_formatted.txt')}}"
+  tasks: 
+    - name: Retrieve data through CID on the IPFS network, and time it
+      ansible.builtin.shell: "{ time IPFS_PATH=IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/.ipfs IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/ipfs get {{ CID }} ; } 2> IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/output.txt "
+      args:
+        executable: /bin/bash
+      
+
+    - name: Retrieve outpout of previous command
+      shell: cat IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/output.txt
+      register: measure
+
+    - name: Write result to local file
+      copy: 
+        content: "{{ measure.stdout_lines }}"
+        dest: measure.txt
+      delegate_to: localhost
+    
+    - name: Run local python to deal w new measure
+      shell: python3 measure_formater.py
+      delegate_to: localhost
+
+    - name: Force garbage collection on node to delete the file we just retrieved so we can make new measurement
+      shell: IPFS_PATH=IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/.ipfs IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/ipfs repo gc
+
+
+- hosts: ClusterNode2
+  gather_facts: no
+  vars: 
+      bootstrap_id: "{{lookup('file','playbooks/id_secret/bootstrap_id.txt')}}"
+      cluster_secret: "{{lookup('file', 'playbooks/id_secret/cluster_secret.txt')}}"
+  
+  tasks:
+    - name: Make IPFSCluster folder
+      shell: mkdir -p IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/ipfs-cluster-service
+
+    - name: Make IPFSCluster control folder
+      shell: mkdir -p IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/ipfs-cluster-ctl
+
+    - name: Copying IPFSCluster service binary
+      copy:
+        src: playbooks/kubo/ipfs-cluster-service/ipfs-cluster-service
+        dest: IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/ipfs-cluster-service/ipfs-cluster-service
+
+    - name: Copying IPFSCluster ctl binary
+      copy:
+        src: playbooks/kubo/ipfs-cluster-ctl/ipfs-cluster-ctl
+        dest: IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/ipfs-cluster-ctl/ipfs-cluster-ctl
+
+    - name: Authorize execution of IPFSCluster ctl binary
+      shell: chmod u+x IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/ipfs-cluster-ctl/ipfs-cluster-ctl
+
+    - name: Authorize execution of IPFSCluster binary
+      shell: chmod u+x IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/ipfs-cluster-service/ipfs-cluster-service
+
+    - name: Initiliaze IPFSCluster
+      shell: IPFS_CLUSTER_PATH=IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/ipfs-cluster-service/.ipfs-cluster IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/ipfs-cluster-service/ipfs-cluster-service init --consensus crdt 
+
+    - name: Add bootstrap to peerstore
+      shell: echo "{{ bootstrap_id }}" > IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/ipfs-cluster-service/.ipfs-cluster/peerstore
+
+    - name: Copy python script for secret edition
+      copy:
+        src: playbooks/kubo/cluster_secret_adder.py
+        dest: IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/ipfs-cluster-service/.ipfs-cluster/cluster_secret_adder.py
+
+    - name: authorize execution of python secret adder
+      shell: chmod u+x IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/ipfs-cluster-service/.ipfs-cluster/cluster_secret_adder.py
+
+    - name: Change cluster secret
+      shell: python3 IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/ipfs-cluster-service/.ipfs-cluster/cluster_secret_adder.py {{ cluster_secret }} IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/ipfs-cluster-service/.ipfs-cluster/service.json
+
+    - name: Start IPFSCluster
+      shell: IPFS_CLUSTER_PATH=IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/ipfs-cluster-service/.ipfs-cluster nohup IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/ipfs-cluster-service/ipfs-cluster-service daemon >/dev/null 2>&1 &
+
+    
+ 
+- hosts: ClusterBootstrap
+  gather_facts: no
+  tasks:
+    - name: Retrieve a piece of data to post on network
+      copy:
+        src: data.pdf
+        dest: IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/data.pdf
+    
+    - name: Upload data on IPFS network and retrieve its CID
+      shell: IPFS_PATH=IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/.ipfs IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/ipfs add IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/data.pdf
+      register: CID 
+
+    - name: Write CID to local file
+      copy:
+        content: "{{CID.stdout_lines}}"
+        dest: CID.txt
+      delegate_to: localhost
+
+    - name: Format result of previous command to get CID
+      shell: python3 CID_formater.py
+      delegate_to: localhost
+
+    - name: Write result of previous python script to ansible variable
+      set_fact:
+        CID: "{{lookup('file','CID_formatted.txt')}}"
+
+    - name: make sure ipfs-cluster-ctl is executable (other playbook should have done it but we never know)
+      shell: chmod u+x IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/ipfs-cluster-ctl/ipfs-cluster-ctl
+
+    - name: pin data on cluster
+      shell: IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/ipfs-cluster-ctl/ipfs-cluster-ctl pin add "{{ CID }}"
+
+
+
+- hosts: Node
+  gather_facts: no
+  vars:
+    CID: "{{lookup('file','CID_formatted.txt')}}"
+  tasks: 
+    - name: Retrieve data through CID on the IPFS network, and time it
+      ansible.builtin.shell: "{ time IPFS_PATH=IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/.ipfs IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/ipfs get {{ CID }} ; } 2> IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/output.txt "
+      args:
+        executable: /bin/bash
+      
+
+    - name: Retrieve outpout of previous command
+      shell: cat IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/output.txt
+      register: measure
+
+    - name: Write result to local file
+      copy: 
+        content: "{{ measure.stdout_lines }}"
+        dest: measure.txt
+      delegate_to: localhost
+    
+    - name: Run local python to deal w new measure
+      shell: python3 measure_formater.py
+      delegate_to: localhost
+
+    - name: Force garbage collection on node to delete the file we just retrieved so we can make new measurement
+      shell: IPFS_PATH=IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/.ipfs IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/ipfs repo gc
+
+
+- hosts: Node
+  gather_facts: no
+  vars:
+    CID: "{{lookup('file','CID_formatted.txt')}}"
+  tasks: 
+    - name: Retrieve data through CID on the IPFS network, and time it
+      ansible.builtin.shell: "{ time IPFS_PATH=IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/.ipfs IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/ipfs get {{ CID }} ; } 2> IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/output.txt "
+      args:
+        executable: /bin/bash
+      
+
+    - name: Retrieve outpout of previous command
+      shell: cat IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/output.txt
+      register: measure
+
+    - name: Write result to local file
+      copy: 
+        content: "{{ measure.stdout_lines }}"
+        dest: measure.txt
+      delegate_to: localhost
+    
+    - name: Run local python to deal w new measure
+      shell: python3 measure_formater.py
+      delegate_to: localhost
+
+    - name: Force garbage collection on node to delete the file we just retrieved so we can make new measurement
+      shell: IPFS_PATH=IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/.ipfs IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/ipfs repo gc
+
+
+- hosts: Node
+  gather_facts: no
+  vars:
+    CID: "{{lookup('file','CID_formatted.txt')}}"
+  tasks: 
+    - name: Retrieve data through CID on the IPFS network, and time it
+      ansible.builtin.shell: "{ time IPFS_PATH=IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/.ipfs IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/ipfs get {{ CID }} ; } 2> IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/output.txt "
+      args:
+        executable: /bin/bash
+      
+
+    - name: Retrieve outpout of previous command
+      shell: cat IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/output.txt
+      register: measure
+
+    - name: Write result to local file
+      copy: 
+        content: "{{ measure.stdout_lines }}"
+        dest: measure.txt
+      delegate_to: localhost
+    
+    - name: Run local python to deal w new measure
+      shell: python3 measure_formater.py
+      delegate_to: localhost
+
+    - name: Force garbage collection on node to delete the file we just retrieved so we can make new measurement
+      shell: IPFS_PATH=IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/.ipfs IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/ipfs repo gc
+
+
+- hosts: Node
+  gather_facts: no
+  vars:
+    CID: "{{lookup('file','CID_formatted.txt')}}"
+  tasks: 
+    - name: Retrieve data through CID on the IPFS network, and time it
+      ansible.builtin.shell: "{ time IPFS_PATH=IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/.ipfs IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/ipfs get {{ CID }} ; } 2> IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/output.txt "
+      args:
+        executable: /bin/bash
+      
+
+    - name: Retrieve outpout of previous command
+      shell: cat IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/output.txt
+      register: measure
+
+    - name: Write result to local file
+      copy: 
+        content: "{{ measure.stdout_lines }}"
+        dest: measure.txt
+      delegate_to: localhost
+    
+    - name: Run local python to deal w new measure
+      shell: python3 measure_formater.py
+      delegate_to: localhost
+
+    - name: Force garbage collection on node to delete the file we just retrieved so we can make new measurement
+      shell: IPFS_PATH=IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/.ipfs IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/ipfs repo gc
+
+
+- hosts: Node
+  gather_facts: no
+  vars:
+    CID: "{{lookup('file','CID_formatted.txt')}}"
+  tasks: 
+    - name: Retrieve data through CID on the IPFS network, and time it
+      ansible.builtin.shell: "{ time IPFS_PATH=IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/.ipfs IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/ipfs get {{ CID }} ; } 2> IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/output.txt "
+      args:
+        executable: /bin/bash
+      
+
+    - name: Retrieve outpout of previous command
+      shell: cat IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/output.txt
+      register: measure
+
+    - name: Write result to local file
+      copy: 
+        content: "{{ measure.stdout_lines }}"
+        dest: measure.txt
+      delegate_to: localhost
+    
+    - name: Run local python to deal w new measure
+      shell: python3 measure_formater.py
+      delegate_to: localhost
+
+    - name: Force garbage collection on node to delete the file we just retrieved so we can make new measurement
+      shell: IPFS_PATH=IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/.ipfs IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/ipfs repo gc
+
+
+- hosts: Node
+  gather_facts: no
+  vars:
+    CID: "{{lookup('file','CID_formatted.txt')}}"
+  tasks: 
+    - name: Retrieve data through CID on the IPFS network, and time it
+      ansible.builtin.shell: "{ time IPFS_PATH=IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/.ipfs IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/ipfs get {{ CID }} ; } 2> IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/output.txt "
+      args:
+        executable: /bin/bash
+      
+
+    - name: Retrieve outpout of previous command
+      shell: cat IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/output.txt
+      register: measure
+
+    - name: Write result to local file
+      copy: 
+        content: "{{ measure.stdout_lines }}"
+        dest: measure.txt
+      delegate_to: localhost
+    
+    - name: Run local python to deal w new measure
+      shell: python3 measure_formater.py
+      delegate_to: localhost
+
+    - name: Force garbage collection on node to delete the file we just retrieved so we can make new measurement
+      shell: IPFS_PATH=IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/.ipfs IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/ipfs repo gc
+
+
+- hosts: Node
+  gather_facts: no
+  vars:
+    CID: "{{lookup('file','CID_formatted.txt')}}"
+  tasks: 
+    - name: Retrieve data through CID on the IPFS network, and time it
+      ansible.builtin.shell: "{ time IPFS_PATH=IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/.ipfs IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/ipfs get {{ CID }} ; } 2> IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/output.txt "
+      args:
+        executable: /bin/bash
+      
+
+    - name: Retrieve outpout of previous command
+      shell: cat IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/output.txt
+      register: measure
+
+    - name: Write result to local file
+      copy: 
+        content: "{{ measure.stdout_lines }}"
+        dest: measure.txt
+      delegate_to: localhost
+    
+    - name: Run local python to deal w new measure
+      shell: python3 measure_formater.py
+      delegate_to: localhost
+
+    - name: Force garbage collection on node to delete the file we just retrieved so we can make new measurement
+      shell: IPFS_PATH=IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/.ipfs IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/ipfs repo gc
+
+
+- hosts: Node
+  gather_facts: no
+  vars:
+    CID: "{{lookup('file','CID_formatted.txt')}}"
+  tasks: 
+    - name: Retrieve data through CID on the IPFS network, and time it
+      ansible.builtin.shell: "{ time IPFS_PATH=IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/.ipfs IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/ipfs get {{ CID }} ; } 2> IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/output.txt "
+      args:
+        executable: /bin/bash
+      
+
+    - name: Retrieve outpout of previous command
+      shell: cat IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/output.txt
+      register: measure
+
+    - name: Write result to local file
+      copy: 
+        content: "{{ measure.stdout_lines }}"
+        dest: measure.txt
+      delegate_to: localhost
+    
+    - name: Run local python to deal w new measure
+      shell: python3 measure_formater.py
+      delegate_to: localhost
+
+    - name: Force garbage collection on node to delete the file we just retrieved so we can make new measurement
+      shell: IPFS_PATH=IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/.ipfs IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/ipfs repo gc
+
+
+- hosts: Node
+  gather_facts: no
+  vars:
+    CID: "{{lookup('file','CID_formatted.txt')}}"
+  tasks: 
+    - name: Retrieve data through CID on the IPFS network, and time it
+      ansible.builtin.shell: "{ time IPFS_PATH=IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/.ipfs IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/ipfs get {{ CID }} ; } 2> IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/output.txt "
+      args:
+        executable: /bin/bash
+      
+
+    - name: Retrieve outpout of previous command
+      shell: cat IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/output.txt
+      register: measure
+
+    - name: Write result to local file
+      copy: 
+        content: "{{ measure.stdout_lines }}"
+        dest: measure.txt
+      delegate_to: localhost
+    
+    - name: Run local python to deal w new measure
+      shell: python3 measure_formater.py
+      delegate_to: localhost
+
+    - name: Force garbage collection on node to delete the file we just retrieved so we can make new measurement
+      shell: IPFS_PATH=IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/.ipfs IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/ipfs repo gc
+
+
+- hosts: Node
+  gather_facts: no
+  vars:
+    CID: "{{lookup('file','CID_formatted.txt')}}"
+  tasks: 
+    - name: Retrieve data through CID on the IPFS network, and time it
+      ansible.builtin.shell: "{ time IPFS_PATH=IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/.ipfs IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/ipfs get {{ CID }} ; } 2> IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/output.txt "
+      args:
+        executable: /bin/bash
+      
+
+    - name: Retrieve outpout of previous command
+      shell: cat IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/output.txt
+      register: measure
+
+    - name: Write result to local file
+      copy: 
+        content: "{{ measure.stdout_lines }}"
+        dest: measure.txt
+      delegate_to: localhost
+    
+    - name: Run local python to deal w new measure
+      shell: python3 measure_formater.py
+      delegate_to: localhost
+
+    - name: Force garbage collection on node to delete the file we just retrieved so we can make new measurement
+      shell: IPFS_PATH=IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/.ipfs IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/ipfs repo gc
+

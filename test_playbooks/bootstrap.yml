@@ -1,0 +1,31 @@
+- hosts: ClusterBootstrap
+  gather_facts: no
+  tasks:
+    - name: Retrieve a piece of data to post on network
+      copy:
+        src: data.pdf
+        dest: IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/data.pdf
+    
+    - name: Upload data on IPFS network and retrieve its CID
+      shell: IPFS_PATH=IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/.ipfs IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/ipfs add IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/kubo/data.pdf
+      register: CID 
+
+    - name: Write CID to local file
+      copy:
+        content: "{{CID.stdout_lines}}"
+        dest: CID.txt
+      delegate_to: localhost
+
+    - name: Format result of previous command to get CID
+      shell: python3 CID_formater.py
+      delegate_to: localhost
+
+    - name: Write result of previous python script to ansible variable
+      set_fact:
+        CID: "{{lookup('file','CID_formatted.txt')}}"
+
+    - name: make sure ipfs-cluster-ctl is executable (other playbook should have done it but we never know)
+      shell: chmod u+x IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/ipfs-cluster-ctl/ipfs-cluster-ctl
+
+    - name: pin data on cluster
+      shell: IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/ipfs-cluster-ctl/ipfs-cluster-ctl pin add "{{ CID }}"
