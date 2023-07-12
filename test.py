@@ -2,6 +2,8 @@
 
 import json
 import yaml
+import os
+from data_processing import data_processing
 
 with open("test.json","r") as f:
     test = json.load(f)
@@ -15,7 +17,7 @@ max_nodes = test["MAX_NB_COPIES"]
 #TODO BUILD HOSTS.INI file based on previous hosts.INI file
 
 ## USEFUL STRINGS ##
-NODES = ["ClusterNode1","ClusterNode2"]
+NODES = ["ClusterNode1","ClusterNode2","ClusterNode3","ClusterNode4","ClusterNode5"]
 
 
 with open('test_playbooks/bootstrap.yml', 'r') as file:
@@ -58,3 +60,17 @@ for name in NODES :
 
 with open("meas_playbook.yml","w") as f:
     yaml.safe_dump(existing_data, f)
+
+print("Playbook successfully written - launching tests now ...")
+
+os.system("rm -f measure_output.txt")
+
+os.system("ansible-playbook meas_playbook.yml -i hosts.ini --ask-pass")
+
+print("Playbook executed - data saved to measure_output.txt")
+
+print("Building graphs ...")
+
+data_processing()
+
+
