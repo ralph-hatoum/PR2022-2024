@@ -1,0 +1,4 @@
+#Ignore files in hosts (i do not want to expose the machine's IP addresses)
+/hosts
+
+/dist-sto
