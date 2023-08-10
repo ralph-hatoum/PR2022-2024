@@ -22,4 +22,6 @@ def country_discriminator(NODES,country_code):
     return nodes_to_keep
 
 
+
+
 print(country_discriminator(NODES, "FR"))

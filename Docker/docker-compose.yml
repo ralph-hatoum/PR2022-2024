@@ -1,0 +1,20 @@
+version: '2.4'
+
+services:
+  test-ubuntu:
+    build: .
+    image: test-ubuntu
+    ports:
+      - "8080:8080"
+      - "4001:4001"
+      - "127.0.0.1:5001:5001"
+      - "22:22"
+    networks:
+      - main
+
+  pinger:
+    image: test-ubuntu
+    networks:
+      - main
+networks:
+  main:
