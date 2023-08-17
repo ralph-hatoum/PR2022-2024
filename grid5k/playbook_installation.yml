@@ -1,0 +1,46 @@
+## Playbook to install all needed IPFS and IPFSCluster binaries
+
+- hosts: All-nodes
+  gather_facts: no
+  tasks:
+
+  ## curl, tar, python, lsof, sudo, ping à installer ???
+
+  ## TODO node exporter python script  and cluster_secret_adder.py  for ipfs clusters
+  
+  # IPFS installation
+  - name: Download IPFS binary
+    shell: curl https://dist.ipfs.tech/kubo/v0.22.0/kubo_v0.22.0_linux-amd64.tar.gz --output kubo_v0.22.0_linux-amd64.tar.gz
+  - name: Decompress IPFS file
+    shell: tar -xvzf kubo_v0.22.0_linux-amd64.tar.gz
+  - name: Run install script
+    shell: kubo/install.sh
+  - name : Cleanup IPFS 
+    shell: rm -f kubo_v0.22.0_linux-amd64.tar.gz && rm -R kubo
+
+- hosts: IPFSCluster-nodes
+  gather_facts: no
+  tasks:
+
+  # IPFSCluster binaries installation
+
+  #IPFS cluster service installation
+  - name: Download IPFSCluster service binary
+    shell: curl https://dist.ipfs.tech/ipfs-cluster-service/v1.0.6/ipfs-cluster-service_v1.0.6_linux-amd64.tar.gz --output ipfs-cluster-service_v1.0.6_linux-amd64.tar.gz
+  - name: Decompress IPFSCluster service file
+    shell: tar -xvzf ipfs-cluster-service_v1.0.6_linux-amd64.tar.gz
+  - name: Copying IPFSCluster service binary file to usr/local/bin
+    shell: cp ipfs-cluster-service/ipfs-cluster-service /usr/local/bin/ipfs-cluster-service
+  - name: Cleanup IPFSCluster service
+    shell: rm -f ipfs-cluster-service_v1.0.6_linux-amd64.tar.gz && rm -R ipfs-cluster-service
+
+  #IPFS cluster control installation 
+  - name: Download IPFSCluster control binary
+    shell: curl https://dist.ipfs.tech/ipfs-cluster-ctl/v1.0.6/ipfs-cluster-ctl_v1.0.6_linux-amd64.tar.gz --output ipfs-cluster-ctl_v1.0.6_linux-amd64.tar.gz
+  - name : Decompress IPFSCluster control file
+    shell: tar -xvzf ipfs-cluster-ctl_v1.0.6_linux-amd64.tar.gz
+  - name: Copying IPFSCluster control file to usr/local/bin
+    shell: cp ipfs-cluster-ctl/ipfs-cluster-ctl /usr/local/bin/ipfs-cluster-ctl
+  - name: Cleanup IPFSCluster control
+    shell: rm -f ipfs-cluster-ctl_v1.0.6_linux-amd64.tar.gz && rm -R ipfs-cluster-ctl
+    

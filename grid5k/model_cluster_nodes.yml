@@ -1,0 +1,19 @@
+- hosts: #IPFS CLUSTER NODES
+  vars: 
+    bootstrap_id: "{{lookup('file','id_secret/bootstrap_id.txt')}}"
+    cluster_secret: "{{lookup('file', 'id_secret/cluster_secret.txt')}}"
+  gather_facts: no
+  tasks:
+    - name: Initiliaze IPFSCluster
+      shell: ipfs-cluster-service init --consensus crdt 
+
+    - name: Add bootstrap to peerstore
+      shell: echo "{{ bootstrap_id }}" > ~/.ipfs-cluster/peerstore
+
+    - name: Change cluster secret
+      shell: python3 cluster_secret_adder.py {{ cluster_secret }} .ipfs-cluster/service.json
+
+    - name: Start IPFSCluster
+      shell: IPFS_CLUSTER_PATH=IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/ipfs-cluster-service/.ipfs-cluster nohup IPFS_nodes/{{ hostvars[inventory_hostname]['label'] }}/ipfs-cluster-service/ipfs-cluster-service daemon >/dev/null 2>&1 &
+
+    

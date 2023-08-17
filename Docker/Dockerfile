@@ -12,7 +12,8 @@ apt-get -qq install -y python3 && \
 apt-get -qq install -y python3-pip && \
 apt-get -qq install -y lsof && \
 apt-get -qq install -y sudo && \
-apt-get -qq install -y openssh-server
+apt-get -qq install -y openssh-server && \
+apt-get -qq install -y inetutils-ping
 
 ## Installations relative to IPFS
     #Install IPFS binary
@@ -48,8 +49,9 @@ EXPOSE 5001
 EXPOSE 22
 
 RUN service ssh start
-RUN useradd -rm -d /home/ubuntu -s /bin/bash -g root -G sudo -u 1000 test 
-RUN echo 'test:test' | chpasswd
+RUN echo 'root:test' | chpasswd
+# RUN useradd -rm -d /home/ubuntu -s /bin/bash -g root -G sudo -u 1000 test 
+RUN sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
 CMD [ "/usr/sbin/sshd", "-D" ]
 
 ENTRYPOINT [ "/usr/src/app/entrypoint.sh" ]
