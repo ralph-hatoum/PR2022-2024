@@ -1,3 +1,7 @@
+# Research project - INSA Lyon 2022-2024
+
+This is my personal repository for code written in for my research project about distributed cloud infrastructures. For now, only an SSH based IPFS private network deployer with data collection is ready to be used :
+
 # IPFS private network deployer
 
 The aim of this project is to provide a quick and efficient way to deploy a private IPFS network over a set of machines accessible via SSH connection. The tool also allows to setup an IPFSCluster within the IPFS network, as well as a data collection system to retrieve metrics in order to quantify and analyse the behavior of the network. 
