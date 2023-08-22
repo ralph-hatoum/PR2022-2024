@@ -33,29 +33,22 @@ RUN cp /usr/src/app/syslinux-3.73/com32/modules/chain.c32 /srv/tftp/chain.c32 &&
 cp /usr/src/app/syslinux-3.73/com32/modules/mboot.c32 /srv/tftp/mboot.c32 && \
 cp /usr/src/app/syslinux-3.73/core/pxelinux.0 /srv/tftp/pxelinux.0
 
-
+COPY conf/dhcpd.conf /usr/local/etc/dhcpd.conf
 COPY scripts/entrypoint.sh /usr/src/app/entrypoint.sh
 
 RUN chmod u+x /usr/src/app/entrypoint.sh
 
 RUN mkdir -p /run/mysqld && chown -R mysql:mysql /run/mysqld
 
-# RUN groupadd -r mysql && useradd -r -g mysql mysql
+#  RUN groupadd -r mysql && useradd -r -g mysql mysql
 
-RUN sudo service mariadb start
+COPY conf/my.cnf /etc/mysql/my.cnf
 
-USER mysql
-
-
-RUN mysql -h localhost -u root -p 
-
-# TODO modify mysqlconf mainly socket path
-
-# RUN mysql -h localhost -u root -pr00t -e "CREATE DATABASE deploy3;" && \
-# mysql -h localhost -u root -p -e "GRANT select, insert, update, delete, create, drop, alter, \
-# create temporary tables, lock tables ON deploy3.* \ TO 'deploy'@'kadeploy.site.grid5000.fr';"
+RUN curl https://gitlab.inria.fr/grid5000/kadeploy/-/archive/v3.8.2.stable/kadeploy-v3.8.2.stable.tar.gz --output kadeploy_3.8.2.tar.gz \
+&& tar -xvzf kadeploy_3.8.2.tar.gz -C kadeploy
 
 
-CMD ["sleep","infinity"]
 
-# ENTRYPOINT [ "/usr/src/app/entrypoint.sh" ]
+# CMD ["sleep","infinity"]
+
+ENTRYPOINT [ "/usr/src/app/entrypoint.sh" ]
