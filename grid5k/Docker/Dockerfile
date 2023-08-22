@@ -42,13 +42,18 @@ RUN mkdir -p /run/mysqld && chown -R mysql:mysql /run/mysqld
 
 # RUN groupadd -r mysql && useradd -r -g mysql mysql
 
-RUN sudo service mysql start
+RUN sudo service mariadb start
 
 USER mysql
 
-RUN mysql -h localhost -u root -pr00t -e "CREATE DATABASE deploy3;" && \
-mysql -h localhost -u root -p -e "GRANT select, insert, update, delete, create, drop, alter, \
-create temporary tables, lock tables ON deploy3.* \ TO 'deploy'@'kadeploy.site.grid5000.fr';"
+
+RUN mysql -h localhost -u root -p 
+
+# TODO modify mysqlconf mainly socket path
+
+# RUN mysql -h localhost -u root -pr00t -e "CREATE DATABASE deploy3;" && \
+# mysql -h localhost -u root -p -e "GRANT select, insert, update, delete, create, drop, alter, \
+# create temporary tables, lock tables ON deploy3.* \ TO 'deploy'@'kadeploy.site.grid5000.fr';"
 
 
 CMD ["sleep","infinity"]
