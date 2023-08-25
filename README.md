@@ -60,6 +60,8 @@ ansible-playbook network_killer.yml -i hosts.ini --ask-pass
 ```
 ## General architecture 
 
+![Diagram explaining how the tool works](diagram.png)
+
 This tool makes use of Ansible, a tool that allows for SSH connection automation. 
 
 Actions to be done are described in yaml files called playbooks. We use two playbooks, one for setting up the network and one for killing the network.

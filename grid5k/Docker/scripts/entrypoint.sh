@@ -11,4 +11,8 @@ mysql -h localhost -u root -pr00t -e "GRANT select, insert, update, delete, crea
 
 echo "Done!"
 
+echo "Starting kadeploy ... "
+
+service kadeploy start
+
 sleep infinity

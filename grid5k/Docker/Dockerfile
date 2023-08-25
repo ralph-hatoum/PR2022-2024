@@ -11,7 +11,6 @@ RUN apt-get update && \
  apt-get install -y syslinux && \
  apt-get install -y tftpd-hpa && \ 
  apt-get install -y curl && \ 
-#  apt-get install -y mysql && \
  apt-get install -y catdoc && \
  apt-get install -y vim && \
  apt-get -qq -y install tar && \ 
@@ -20,6 +19,8 @@ RUN apt-get update && \
  apt-get install -y make && \
  apt-get install -y gcc && \
  apt-get install -y sudo && \
+ apt-get install -y help2man && \
+ apt-get install -y git && \
  apt-get clean && \
  rm -rf /var/lib/apt/lists/*
 
@@ -40,15 +41,22 @@ RUN chmod u+x /usr/src/app/entrypoint.sh
 
 RUN mkdir -p /run/mysqld && chown -R mysql:mysql /run/mysqld
 
-#  RUN groupadd -r mysql && useradd -r -g mysql mysql
-
 COPY conf/my.cnf /etc/mysql/my.cnf
 
-RUN curl https://gitlab.inria.fr/grid5000/kadeploy/-/archive/v3.8.2.stable/kadeploy-v3.8.2.stable.tar.gz --output kadeploy_3.8.2.tar.gz \
-&& tar -xvzf kadeploy_3.8.2.tar.gz -C kadeploy
+RUN apt-get update && apt-get install -y default-libmysqlclient-dev
 
+RUN chmod 644 /etc/mysql/my.cnf && gem install mysql2 -- —–with-mysql-config=/usr/local/bin/mysql_config
 
+RUN gem install mysql2
 
-# CMD ["sleep","infinity"]
+RUN  useradd --system deploy
+
+RUN curl https://gitlab.inria.fr/grid5000/kadeploy/-/archive/v3.8.2.stable/kadeploy-v3.8.2.stable.tar.gz --output kadeploy-v3.8.2.stable.tar.gz \
+&& tar -xvzf kadeploy-v3.8.2.stable.tar.gz
+RUN /bin/mkdir kadeploy-v3.8.2.stable/addons/kastafior && echo " " > kadeploy-v3.8.2.stable/addons/kastafior/kastafior
+RUN (cd kadeploy-v3.8.2.stable && rake install)
+
+COPY conf/server.conf /etc/kadeploy3/server.conf
+RUN chmod u+x /etc/kadeploy3/server.conf
 
 ENTRYPOINT [ "/usr/src/app/entrypoint.sh" ]
