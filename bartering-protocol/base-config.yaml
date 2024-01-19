@@ -16,5 +16,6 @@ StoragetestingFailedTestTimeoutDecrease: 0.5
 StoragetestingFailedTestWrongAnsDecrease: 0.7
 StoragetestingPassedTestIncrease: 0.2
 
-FailureModel : "weibull"
+# FailureModel : "weibull"
+FailureModel : "pareto"
 NodeProfile : "peer"
