@@ -24,7 +24,7 @@ def extract_bartering_config(config_path):
     # print(output)
     return output
 
-conf_list = extract_bartering_config("./network_config.json")
+# conf_list = extract_bartering_config("./network_config.json")
 
 def check_if_different_and_change(key, value, conf):
     if conf[key] != value:
@@ -42,7 +42,13 @@ def build_configs(config_list):
         with open(f"bartering-protocol/{node_type[0]}/conf.yaml", "w") as conf_file:
             yaml.dump(conf, conf_file, default_flow_style=False)
 
-build_configs(conf_list)
+# build_configs(conf_list)
+
+with open("network_config.json","r") as f:
+    config = json.load(f)
+bartering_configs = config["Bartering_network"]["peers"]
+total_nodes_bartering = sum([bartering_configs[key]["Nodes"] for key in bartering_configs.keys()])
+print(total_nodes_bartering)
 
 def write_in_playbooks(config_list):
     return
