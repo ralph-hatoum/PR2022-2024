@@ -90,25 +90,54 @@ with open("hosts/hosts.ini","w") as f:
         f.write(f"{username}@{host} label=node{n} label_ip={host}\n")
         n +=1 
     f.write('\n')
-
-print("\n\033[0;32mhosts.ini file successfully built!\033[0m\n")
     
 available_hosts.append(bootstrap_node)
 
-
 if flag_bartering:
     print("\nProvisioning nodes for Bartering ...")
+
+    # Open model playbook 
+    f = open("playbooks/playbook_backup.yml", "r") 
+    existing_playbook = yaml.safe_load(f)
+    f.close()
+
     with open("hosts/hosts.ini","a") as f:
         counter = 0
         f.write(f"[BarteringBootstrap]\n{username}@{available_hosts[0]} label=bartering-bootstrap label_ip={available_hosts[0]}\n")
+
+        # Open model bootstrap playbook
+        bootstrap_file = open("bartering_playbooks/model_bartering_bootstrap.yml", "r") 
+        base_bootstrap = yaml.safe_load(bootstrap_file)
+        bootstrap_file.close()
+
+        # Modify whatever needs to be
+        base_bootstrap[0]['hosts']=f"BarteringBootstrap"
+
+        # Write into existing data
+        existing_playbook.append(base_bootstrap)
+
+
         for key in bartering_configs.keys():
             f.write(f"[BarteringNodes{key}]\n")
             number_of_nodes = bartering_configs[key]["Nodes"]
             n = 0
+
+            base_node_file = open("bartering_playbooks/model_bartering_nodes.yml", "r") 
+            base_node = yaml.safe_load(base_node_file)
+            base_node_file.close()
+
+            base_node[0]['hosts']=f"BarteringNodes{key}"
+
+            existing_playbook.append(base_node)
+
             while n < number_of_nodes:
                 f.write(f"{username}@{available_hosts[counter]} label=bartering-node{counter} label_ip={available_hosts[counter]}\n")
                 n+=1
                 counter +=1
+    with open("playbooks/playbook.yml","w") as f:
+        yaml.dump(existing_playbook,f)
+
+
 
 
 
@@ -169,7 +198,7 @@ if flag_clusters_to_build:
     with open("playbooks/playbook.yml","w") as f:
         yaml.dump(existing_data,f)
 
-        
+print("\n\033[0;32mhosts.ini file successfully built!\033[0m\n")
 
 #TODO ADD SUPPORT FOR DIFFERENT CONFIG FOR EACH NODE
 

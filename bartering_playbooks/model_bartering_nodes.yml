@@ -1,0 +1,14 @@
+- hosts: #BARTERING nodes
+  gather_facts: no
+  tasks:
+    - name: Make bartering folder
+      shell : mkdir -p bartering/
+    - name: Copy bartering binary
+      copy:
+        src: bartering-protocol/bartering
+        dest: bartering/
+    - name: Copy bartering config file
+      copy:
+        src: bartering-protocol/{{node_type}}/conf.yaml
+        dest: bartering/
+    
