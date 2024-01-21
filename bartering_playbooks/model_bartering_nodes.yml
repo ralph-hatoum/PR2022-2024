@@ -9,6 +9,8 @@
         dest: bartering/
     - name: Copy bartering config file
       copy:
-        src: bartering-protocol/{{node_type}}/conf.yaml
+        src: bartering-protocol/{{inventory_group_name}}/conf.yaml
         dest: bartering/
+    - name: Run bartering protocol
+      shell: bartering/bartering
     
