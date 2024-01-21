@@ -9,8 +9,10 @@
         dest: bartering/hostvars[inventory_hostname]['label']
     - name: Copy bartering config file
       copy:
-        src: bartering-protocol/{{inventory_group_name}}/conf.yaml
+        src: bartering-protocol/{{ inventory_group_name }}/conf.yaml
         dest: bartering/hostvars[inventory_hostname]['label']
+    - name : Authorize execution of bartering binary
+      shell: chmod u+x bartering/hostvars[inventory_hostname]['label']/bartering
     - name: Run bartering protocol
       shell: bartering/hostvars[inventory_hostname]['label']/bartering
     
