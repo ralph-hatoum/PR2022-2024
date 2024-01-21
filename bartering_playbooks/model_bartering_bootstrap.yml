@@ -7,6 +7,8 @@
       copy:
         src: bartering-protocol/bartering-bootstrap
         dest: bartering/
+    - name : Allow bootstrap binary to be executable
+      shell: chmod u+x bartering/bartering-bootstrap
     - name: Start bootstrap
       shell: bartering/bartering-bootstrap
     
